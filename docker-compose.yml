@@ -1,0 +1,12 @@
+services:
+  runvara:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      RUNVARA_BIND: 0.0.0.0:17878
+      RUST_LOG: runvara=info,tower_http=info
+    ports:
+      - "127.0.0.1:17878:17878"
+    restart: unless-stopped
