@@ -1,5 +1,7 @@
 # Runvara
 
+[![CI](https://github.com/tiammomo/Runvara/actions/workflows/ci.yml/badge.svg)](https://github.com/tiammomo/Runvara/actions/workflows/ci.yml)
+
 **Runvara 是 Claude Code / VS Code Claude 的本地模型端口。**
 
 它在本机暴露 Anthropic-compatible `/v1/messages` 接口，让 Claude Code / VS Code Claude 插件可以在不改变编辑器工作流的前提下，路由到 Mimo、DeepSeek、Anthropic、OpenAI-compatible provider、OpenRouter、Ollama 或自定义上游。
@@ -40,6 +42,31 @@ Runvara 的定位不是“大而全模型聚合平台”，而是一个轻量、
 - OpenAI-compatible API 自动转换，例如 Mimo、OpenAI、OpenRouter、Gemini、Qwen/DashScope、Kimi、GLM、Grok、Groq、Mistral、Doubao/Ark、Ollama、自定义中转。
 - `provider:model`、模型别名、模型前缀和未知模型透传，服务 Claude Code 里的快速切模型场景。
 - 密钥保留在本机环境变量里，不依赖云端控制面。
+
+## 效率与好用性
+
+当前中转效率足够支撑 Claude Code / VS Code Claude 的本机长期使用，也足够支撑内网小团队试生产。Runvara 只做必要的鉴权、路由、JSON 转换和 SSE 转换；大多数耗时来自上游模型生成和第三方中转网络。
+
+可以用内置 benchmark 查看本机端口耗时：
+
+```bash
+scripts/bench.sh
+```
+
+真实上游 benchmark 会产生模型调用成本，默认只跑 3 次：
+
+```bash
+scripts/bench.sh --upstream
+```
+
+更详细的效率判断、瓶颈和调优建议见 [docs/PERFORMANCE.md](docs/PERFORMANCE.md)。
+
+## 项目文档
+
+- [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)：项目定位、架构边界、长期路线。
+- [docs/PERFORMANCE.md](docs/PERFORMANCE.md)：中转效率、benchmark 和投产调优。
+- [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)：GitHub 仓库设置、分支保护、release 建议。
+- [docs/GPT_IMAGE_2_GUIDE.md](docs/GPT_IMAGE_2_GUIDE.md)：基于 OpenAI `gpt-image-2` 的后续图像能力扩展指导。
 
 小米 MiMo 官方 OpenAI-compatible base URL 当前是 `https://api.xiaomimimo.com/v1`。如果你买的是第三方中转服务，可以设置服务商给你的通用 `BASE_URL`，例如 `BASE_URL=https://w.ciykj.cn/v1`；`MIMO_OPENAI_BASE_URL` 存在时会优先覆盖 `BASE_URL`。
 
@@ -562,6 +589,8 @@ HTTP 传输层使用原生 reqwest/rustls 客户端，支持连接池、真实 H
 | `scripts/status.sh` | 查看 PID、日志位置和 `/health` 状态。 |
 | `scripts/doctor.sh` | 检查 `.env`、本机服务、鉴权、VS Code settings 和关键配置。 |
 | `scripts/doctor.sh --upstream` | 在 doctor 基础上验证真实 Mimo 上游消息回复。 |
+| `scripts/bench.sh` | 测量本机 `/health` 和 `/v1/models` 延迟。 |
+| `scripts/bench.sh --upstream` | 测量真实 `/v1/messages` 上游调用延迟，会产生模型调用成本。 |
 | `scripts/dev.sh` | 加载 `.env` 后前台 `cargo run`，适合开发调试。 |
 | `scripts/smoke-test.sh` | 验证本机网关和鉴权。 |
 | `scripts/smoke-test.sh --upstream` | 验证真实上游模型回复，需要真实 Mimo key。 |
