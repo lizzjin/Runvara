@@ -4,7 +4,9 @@
 
 [中文](#中文) | [English](#english)
 
-![Runvara overview](docs/assets/runvara-overview.svg)
+![Runvara architecture overview](docs/assets/runvara-overview.svg)
+
+_Architecture overview: Claude clients call local Runvara, then Runvara handles auth, routing, protocol conversion, streaming, and metrics before reaching configured providers._
 
 ## 中文
 
@@ -62,7 +64,9 @@ Runvara 的定位不是“大而全模型聚合平台”，而是一个轻量、
 
 ## 快速开始
 
-![Runvara quick start](docs/assets/runvara-quickstart.svg)
+![Runvara quick-start flow](docs/assets/runvara-quickstart.svg)
+
+_快速开始图：准备 `.env`、校验配置、启动本地网关，然后让 VS Code Claude 通过 Runvara 使用 `mimo-v2.5-pro`。_
 
 ### 1. 安装依赖
 
