@@ -8,7 +8,7 @@ mod types;
 
 use std::sync::Arc;
 
-use config::AppConfig;
+use config::{AppConfig, ConfigIssueSeverity};
 use error::AppError;
 use http::HttpTransport;
 use metrics::Metrics;
@@ -26,6 +26,10 @@ async fn main() -> Result<(), AppError> {
         )
         .init();
 
+    if handle_cli()? {
+        return Ok(());
+    }
+
     let config = AppConfig::load()?;
     let bind_addr = config.bind_addr;
     let state = AppState {
@@ -42,6 +46,74 @@ async fn main() -> Result<(), AppError> {
         .await?;
 
     Ok(())
+}
+
+fn handle_cli() -> Result<bool, AppError> {
+    let args = std::env::args().skip(1).collect::<Vec<_>>();
+    match args.as_slice() {
+        [] => Ok(false),
+        [flag] if flag == "-h" || flag == "--help" => {
+            print_usage();
+            Ok(true)
+        }
+        [command, subcommand] if command == "config" && subcommand == "validate" => {
+            validate_config()?;
+            Ok(true)
+        }
+        _ => Err(AppError::InvalidRequest(format!(
+            "unknown command `{}`; run `runvara --help`",
+            args.join(" ")
+        ))),
+    }
+}
+
+fn validate_config() -> Result<(), AppError> {
+    let config = AppConfig::load()?;
+    let issues = config.validation_issues();
+    let errors = issues
+        .iter()
+        .filter(|issue| issue.severity == ConfigIssueSeverity::Error)
+        .count();
+    let warnings = issues
+        .iter()
+        .filter(|issue| issue.severity == ConfigIssueSeverity::Warning)
+        .count();
+
+    println!("Runvara configuration");
+    println!("  bind: {}", config.bind_addr);
+    println!("  default_provider: {}", config.default_provider);
+    println!("  providers: {}", config.provider_order.join(", "));
+    println!(
+        "  auth: {}",
+        if config.auth_token.is_some() {
+            "enabled"
+        } else {
+            "disabled"
+        }
+    );
+
+    for issue in &issues {
+        let label = match issue.severity {
+            ConfigIssueSeverity::Error => "ERROR",
+            ConfigIssueSeverity::Warning => "WARN",
+        };
+        println!("[{label}] {}", issue.message);
+    }
+
+    if errors > 0 {
+        return Err(AppError::Config(format!(
+            "configuration validation failed with {errors} error(s) and {warnings} warning(s)"
+        )));
+    }
+
+    println!("Runvara configuration valid: {warnings} warning(s).");
+    Ok(())
+}
+
+fn print_usage() {
+    println!(
+        "Usage:\n  runvara\n  runvara config validate\n\nCommands:\n  config validate    Load and validate Runvara configuration without starting the server"
+    );
 }
 
 async fn shutdown_signal() {
