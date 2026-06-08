@@ -48,6 +48,30 @@ scripts/bench.sh --upstream -n 5
 - `/v1/models`：本机鉴权、路由配置和 JSON 响应开销。
 - `/v1/messages`：真实上游耗时，主要反映 provider 质量。
 
+## 运行指标
+
+Runvara 提供带鉴权的 Prometheus 文本指标：
+
+```bash
+curl -sS \
+  -H "x-api-key: $RUNVARA_AUTH_TOKEN" \
+  http://127.0.0.1:17878/metrics
+```
+
+当前指标包括：
+
+- `runvara_uptime_seconds`
+- `runvara_route_requests_total`
+- `runvara_route_successes_total`
+- `runvara_route_failures_total`
+- `runvara_route_duration_ms_total`
+- `runvara_message_requests_total`
+- `runvara_message_successes_total`
+- `runvara_message_failures_total`
+- `runvara_message_duration_ms_total`
+
+`runvara_message_*` 会按 `provider`、`model`、`stream` 打标签。对流式请求而言，当前耗时统计的是 Runvara 建立响应和上游流式请求初始化阶段，不代表完整模型生成耗时；完整生成体验仍要结合客户端感知、日志和 provider 自身状态判断。
+
 ## 投产调优
 
 常用参数：
