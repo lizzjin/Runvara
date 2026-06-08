@@ -9,7 +9,7 @@ README 里的项目含义图和快速上手图采用“图像模型出方向稿�
 - `docs/assets/runvara-overview.svg`：解释 Runvara 在 Claude Code、VS Code Claude 和上游 provider 之间的位置。
 - `docs/assets/runvara-quickstart.svg`：解释从 `.env` 到 VS Code Claude 连通 Mimo 的四步流程。
 
-这种方式比直接引用外部生成图片更稳：GitHub 能长期渲染，文字可搜索，后续改模型名、端口、provider 时可以直接编辑 SVG。
+`README.md` 和 `README.zh-CN.md` 共用同一组 SVG 资产，语言通过完整 Markdown 文件切换，避免中英文页面出现不一致的图示版本。这种方式比直接引用外部生成图片更稳：GitHub 能长期渲染，文字可搜索，后续改模型名、端口、provider 时可以直接编辑 SVG。
 
 图示维护原则：
 
