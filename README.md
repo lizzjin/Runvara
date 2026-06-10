@@ -88,6 +88,8 @@ Edit `.env`. At minimum, set:
 ```bash
 RUNVARA_BIND=127.0.0.1:17878
 RUNVARA_AUTH_TOKEN=replace-with-a-long-random-local-token
+RUNVARA_ADMIN_USERNAME=admin
+RUNVARA_ADMIN_PASSWORD=replace-with-a-long-random-admin-password
 RUNVARA_DEFAULT_PROVIDER=mimo
 
 BASE_URL=https://w.ciykj.cn/v1
@@ -108,6 +110,7 @@ Notes:
 
 - `RUNVARA_AUTH_TOKEN` is the local token used by Claude Code to call Runvara.
 - `ANTHROPIC_AUTH_TOKEN` must match `RUNVARA_AUTH_TOKEN`.
+- `RUNVARA_ADMIN_USERNAME` and `RUNVARA_ADMIN_PASSWORD` are used only for the management dashboard.
 - `MIMO_OPENAI_API_KEY` must be a real upstream key, not a placeholder.
 - `.env` is ignored by `.gitignore`; do not commit real secrets.
 
@@ -347,6 +350,8 @@ or:
 ```http
 Authorization: Bearer <RUNVARA_AUTH_TOKEN>
 ```
+
+The management dashboard uses account login instead of this router token. The first admin user is bootstrapped from `RUNVARA_ADMIN_USERNAME` and `RUNVARA_ADMIN_PASSWORD`; if no admin password is configured, Runvara falls back to `RUNVARA_AUTH_TOKEN` only for initial local migration.
 
 ## Model Switching
 
