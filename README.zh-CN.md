@@ -56,6 +56,7 @@ Runvara 的定位不是“大而全模型聚合平台”，而是一个轻量、
 
 - [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)：定位、架构边界和长期路线。
 - [docs/PROVIDER_MATRIX.md](docs/PROVIDER_MATRIX.md)：provider 兼容矩阵、实测状态和验收标准。
+- [docs/LOCAL_RUNTIME.md](docs/LOCAL_RUNTIME.md)：SGLang、vLLM、llama.cpp、Ollama 和自定义本地运行时接入。
 - [docs/PERFORMANCE.md](docs/PERFORMANCE.md)：效率、benchmark、运行指标和投产调优。
 - [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)：GitHub 仓库设置、分支保护和 release 建议。
 - [docs/GPT_IMAGE_2_GUIDE.md](docs/GPT_IMAGE_2_GUIDE.md)：后续图像能力扩展指导。
@@ -392,7 +393,7 @@ export ANTHROPIC_MODEL=sonnet
 
 ## 本地 OpenAI-compatible 运行时
 
-基于 SGLang、vLLM、llama.cpp、Ollama 或其他 OpenAI-compatible server 部署的本地模型，都可以接入 Runvara。把 provider 指向本地运行时的 `/v1` base URL 即可；如果本地服务没有鉴权，保持 `api_key_required = false`：
+基于 SGLang、vLLM、llama.cpp、Ollama 或其他 OpenAI-compatible server 部署的本地模型，都可以接入 Runvara。把 provider 指向本地运行时的 `/v1` base URL 即可；如果本地服务没有鉴权，保持 `api_key_required = false`。模型名建议使用 `/v1/models` 暴露的真实 served model ID；对于微调部署，这通常是微调后的 served name，而不只是基座模型系列名。
 
 ```toml
 [providers.local_vllm]
@@ -411,6 +412,8 @@ local = "local_vllm:local-model"
 ```
 
 常见 base URL：SGLang 通常是 `http://127.0.0.1:30000/v1`，vLLM 通常是 `http://127.0.0.1:8000/v1`，llama.cpp 的 OpenAI-compatible server 通常是 `http://127.0.0.1:8080/v1`。如果你希望遇到无法表达的 Anthropic 特性时直接报错，再把该 provider 设为 `fidelity_mode = "strict"`。
+
+模型发现、served name 判断和本地运行时排障详见 [docs/LOCAL_RUNTIME.md](docs/LOCAL_RUNTIME.md)。
 
 这些本地运行时也已经作为可选内置 provider 注册。例如：
 
