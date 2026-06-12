@@ -1,12 +1,42 @@
+name: runvara
+
 services:
   runvara:
     build:
       context: .
+      dockerfile: Dockerfile
+    image: runvara:local
     env_file:
       - .env
     environment:
       RUNVARA_BIND: 0.0.0.0:17878
-      RUST_LOG: runvara=info,tower_http=info
+      RUNVARA_STATE_DIR: /data
+      RUNVARA_CONTROL_STORE: /data/control-plane.json
+      RUNVARA_CONFIG: /config/config.toml
+      RUNVARA_TRUSTED_PROXIES: ${RUNVARA_TRUSTED_PROXIES:-127.0.0.1,::1,172.16.0.0/12}
+      RUNVARA_ALLOWED_ORIGINS: ${RUNVARA_ALLOWED_ORIGINS:-}
+      RUST_LOG: ${RUST_LOG:-runvara=info,tower_http=info}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
-      - "127.0.0.1:17878:17878"
+      - "${RUNVARA_API_PUBLISH:-127.0.0.1:17878}:17878"
+    volumes:
+      - runvara-data:/data
+      # Optional file-based provider config:
+      # - ./config.toml:/config/config.toml:ro
     restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    image: runvara-dashboard:local
+    depends_on:
+      runvara:
+        condition: service_healthy
+    ports:
+      - "${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:5173}:80"
+    restart: unless-stopped
+
+volumes:
+  runvara-data:

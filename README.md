@@ -491,6 +491,9 @@ Service-level variables:
 | `RUNVARA_HTTP_MAX_RESPONSE_BYTES` | `33554432` | Non-streaming response and error body limit. |
 | `RUNVARA_INCLUDE_UNAVAILABLE_PROVIDERS` | unset | Set to `1` to list providers without configured keys. |
 | `RUNVARA_ALLOW_NO_AUTH` | unset | Set to `1` only for isolated tests; do not enable in production. |
+| `RUNVARA_TRUSTED_PROXIES` | `127.0.0.1,::1` | Only these proxy peers may supply `X-Forwarded-For` / `X-Real-IP`. The Docker template also includes `172.16.0.0/12`. |
+| `RUNVARA_ALLOWED_ORIGINS` | unset | Extra allowed origins for console write requests; usually not needed. |
+| `RUNVARA_DISABLE_CSRF` | unset | Emergency local debugging only; do not enable in production. |
 
 Dashboard-only variables:
 
@@ -512,11 +515,33 @@ tail -f .runvara/runvara.log
 ### Docker Compose
 
 ```bash
+cp deploy/docker/runvara.env.example .env
+# Edit .env and set RUNVARA_AUTH_TOKEN, RUNVARA_ADMIN_PASSWORD, and provider keys.
 docker compose up -d --build
 docker compose logs -f runvara
 ```
 
-Compose listens on `0.0.0.0:17878` inside the container, but exposes only `127.0.0.1:17878` on the host.
+The default stack starts two lightweight containers:
+
+- `runvara`: backend API, routing, auth, and control-plane data.
+- `dashboard`: static dashboard UI with `/admin` and `/v1` proxied to the backend.
+
+Default host endpoints:
+
+- Dashboard: `http://127.0.0.1:5173`
+- API: `http://127.0.0.1:17878/v1/messages`
+
+Control-plane data is stored in the Docker named volume `runvara-data`. See [docs/DOCKER.md](docs/DOCKER.md) for deployment details.
+
+Production acceptance:
+
+```bash
+scripts/acceptance.sh
+# Include one real upstream model request:
+scripts/acceptance.sh --upstream
+```
+
+The acceptance script creates a temporary user and API key, verifies IP/spend-limit rejection, audit logging, and backup validation, then cleans up temporary resources. See [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
 
 Stop:
 

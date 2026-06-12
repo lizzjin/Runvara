@@ -1,0 +1,18 @@
+# Optional reverse proxy for LAN or HTTPS deployments.
+# Default docker compose usage does not need Caddy.
+#
+# Example:
+#   runvara.local {
+#     import runvara_proxy
+#   }
+#
+# For plain LAN HTTP while testing:
+#   :8080 {
+#     import runvara_proxy
+#   }
+
+(runvara_proxy) {
+  encode zstd gzip
+
+  reverse_proxy dashboard:80
+}
