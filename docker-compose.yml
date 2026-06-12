@@ -1,6 +1,21 @@
 name: runvara
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${RUNVARA_POSTGRES_DB:-runvara}
+      POSTGRES_USER: ${RUNVARA_POSTGRES_USER:-runvara}
+      POSTGRES_PASSWORD: ${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}
+    volumes:
+      - runvara-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   runvara:
     build:
       context: .
@@ -13,6 +28,7 @@ services:
       RUNVARA_STATE_DIR: /data
       RUNVARA_CONTROL_STORE: /data/control-plane.json
       RUNVARA_CONFIG: /config/config.toml
+      RUNVARA_DATABASE_URL: postgres://${RUNVARA_POSTGRES_USER:-runvara}:${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}@postgres:5432/${RUNVARA_POSTGRES_DB:-runvara}
       RUNVARA_TRUSTED_PROXIES: ${RUNVARA_TRUSTED_PROXIES:-127.0.0.1,::1,172.16.0.0/12}
       RUNVARA_ALLOWED_ORIGINS: ${RUNVARA_ALLOWED_ORIGINS:-}
       RUST_LOG: ${RUST_LOG:-runvara=info,tower_http=info}
@@ -24,6 +40,9 @@ services:
       - runvara-data:/data
       # Optional file-based provider config:
       # - ./config.toml:/config/config.toml:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   dashboard:
@@ -40,3 +59,4 @@ services:
 
 volumes:
   runvara-data:
+  runvara-postgres:
