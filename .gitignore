@@ -1,3 +1,5 @@
 /target
 .env
 .runvara/
+dashboard/playwright-report/
+dashboard/test-results/
