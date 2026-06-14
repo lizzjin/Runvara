@@ -17,7 +17,7 @@ Runvara 的 GitHub 仓库建议按“可长期维护的开发者工具”来建�
 
 - Require pull request before merging。
 - Require status checks to pass。
-- 必选检查：`Rust checks`。
+- 必选检查：`Rust checks`；如果启用前端 CI，再加入 `Dashboard checks`。
 - Require branches to be up to date before merging。
 - Require conversation resolution before merging。
 
@@ -30,6 +30,13 @@ Runvara 的 GitHub 仓库建议按“可长期维护的开发者工具”来建�
 - `cargo fmt --all -- --check`
 - `cargo test --all-targets`
 - `cargo clippy --all-targets --all-features -- -D warnings`
+
+建议补充一个 dashboard job，覆盖：
+
+- `cd dashboard && npm ci`
+- `cd dashboard && npm run lint`
+- `cd dashboard && npm run build`
+- 必要时运行 Playwright E2E；真实 provider 相关 E2E 仍放在本机或受控内网环境。
 
 不要把真实 provider key 放进 GitHub Actions secrets 里跑上游测试。真实上游测试留在本机或受控内网环境执行。
 

@@ -28,7 +28,8 @@ Runvara 已经进入当前定位下的**可投产阶段**：
 - 非流式 `/v1/messages`
 - 流式 `/v1/messages`
 - VS Code Claude Windows/WSL settings
-- `doctor`、`provider-matrix`、`/metrics` 和配置校验
+- 后台登录和控制面 E2E 流程
+- `doctor`、`provider-matrix`、`/metrics`、验收脚本和配置校验
 
 ## 核心能力
 
@@ -42,6 +43,8 @@ Runvara 已经进入当前定位下的**可投产阶段**：
 - 管理用户、API Key、项目/团队、密钥预算、团队预算、模型/provider 白名单、审计事件和完整备份恢复。
 - provider 运行态健康、cooldown 和兼容 provider 之间的简单 fallback。
 - Mimo 稳定流式输出，避免重放片段污染 Claude Code。
+- Web 管理后台：API Key、用户、额度、provider、请求日志、用量趋势、Token 趋势和费用估算。
+- 用量统计：输入/输出/cache token、延迟、重试、请求日志、模型/provider 拆分。
 - `doctor` 运行态自检、`config validate` 静态配置校验、provider matrix 实测。
 - Prometheus 文本 `/metrics`。
 - Docker Compose、systemd、快速启动脚本、GitHub Actions CI。
@@ -58,10 +61,13 @@ Runvara 的定位不是“大而全模型聚合平台”，而是一个轻量、
 
 - [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)：定位、架构边界和长期路线。
 - [docs/PROVIDER_MATRIX.md](docs/PROVIDER_MATRIX.md)：provider 兼容矩阵、实测状态和验收标准。
+- [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md)：个人和小团队部署的投产验收清单。
+- [docs/DOCKER.md](docs/DOCKER.md)：轻量 Docker Compose 部署和内部 PostgreSQL。
 - [docs/LOCAL_RUNTIME.md](docs/LOCAL_RUNTIME.md)：SGLang、vLLM、llama.cpp、Ollama 和自定义本地运行时接入。
 - [docs/PERFORMANCE.md](docs/PERFORMANCE.md)：效率、benchmark、运行指标和投产调优。
 - [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)：GitHub 仓库设置、分支保护和 release 建议。
 - [docs/GPT_IMAGE_2_GUIDE.md](docs/GPT_IMAGE_2_GUIDE.md)：后续图像能力扩展指导。
+- [dashboard/README.md](dashboard/README.md)：后台前端开发、环境变量和 E2E 测试说明。
 
 ## 快速开始
 
@@ -145,6 +151,14 @@ scripts/start.sh
 ```bash
 scripts/status.sh
 ```
+
+打开管理后台：
+
+```text
+http://127.0.0.1:5173
+```
+
+使用 `RUNVARA_ADMIN_USERNAME` 和 `RUNVARA_ADMIN_PASSWORD` 登录。后台可管理用户、API Key、项目/团队、额度、provider 配置、请求日志和用量/费用监控。
 
 停止和重启：
 
@@ -356,6 +370,29 @@ Authorization: Bearer <RUNVARA_AUTH_TOKEN>
 ```
 
 管理后台使用账号登录，不再直接使用网关 token。第一个管理员会从 `RUNVARA_ADMIN_USERNAME` 和 `RUNVARA_ADMIN_PASSWORD` 初始化；如果没有配置后台密码，Runvara 仅为了本地迁移会回退使用 `RUNVARA_AUTH_TOKEN` 作为初始密码。
+
+## 管理后台
+
+管理后台面向个人和小团队运维，不是公网多租户 SaaS 控制台。当前包含：
+
+- 首页看板：请求量、成功率、Token、延迟、费用估算、provider 拆分、模型分布、Token 趋势、最近使用和快捷操作。
+- 请求日志：渠道、身份、模型、cache/token 明细、延迟、费用、重试、网络和原始上下文字段。
+- API Key 管理：恢复/禁用、绑定用户、项目/团队、IP 限制、消费预算、时间窗口限额、模型/provider 策略。
+- 用户管理：角色、状态、邮箱和密码更新。
+- 额度、provider 配置、路由别名、provider 模型发现、安装/运行诊断。
+
+费用是基于当前价格表和已记录 token 用量的运营估算。带 token 明细的历史记录会在看板和日志中按当前价格表重新估算；没有 token 明细的旧记录保留原始估算值。
+
+当前内置的 Mimo 海外按量价格中，`mimo-v2.5-pro` 使用：
+
+| 项目 | 价格 |
+| --- | --- |
+| 输入 cache miss | `$0.435 / 1M tokens` |
+| 输出 | `$0.87 / 1M tokens` |
+| 输入 cache hit | `$0.0036 / 1M tokens` |
+| cache write | 限时免费，按 `$0` 估算 |
+
+参考：<https://mimo.mi.com/docs/en-US/price/pay-as-you-go>
 
 ## 模型切换
 
@@ -649,7 +686,7 @@ Runvara 有意保持小而清晰：
 
 - 不做聊天客户端。
 - 不做云端模型聚合平台。
-- 不做计费、额度、用户体系。
+- 不做企业 IAM、外部结算系统或公网多租户 SaaS。
 - 不实现模型推理，只做协议适配和本地路由。
 - 不把图像 base64 混入 Claude Code 文本主链路。
 - 不追求所有 provider native API，优先支持 Anthropic-compatible 和 OpenAI-compatible。
