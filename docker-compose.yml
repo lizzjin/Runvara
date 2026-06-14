@@ -25,6 +25,7 @@ services:
       - .env
     environment:
       RUNVARA_BIND: 0.0.0.0:17878
+      RUNVARA_ENV_FILE: /config/.env
       RUNVARA_STATE_DIR: /data
       RUNVARA_CONTROL_STORE: /data/control-plane.json
       RUNVARA_CONFIG: /config/config.toml
@@ -38,6 +39,7 @@ services:
       - "${RUNVARA_API_PUBLISH:-127.0.0.1:17878}:17878"
     volumes:
       - runvara-data:/data
+      - ./.env:/config/.env:ro
       # Optional file-based provider config:
       # - ./config.toml:/config/config.toml:ro
     depends_on:
