@@ -1,5 +1,6 @@
 /target
 .env
+.env.backup-*
 .runvara/
 dashboard/playwright-report/
 dashboard/test-results/
