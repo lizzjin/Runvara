@@ -54,6 +54,7 @@ Runvara 是面向 Claude Code / VS Code Claude 的本地模型网关。它在本
 - 支持 `provider:model`、别名、显式模型 ID 和模型前缀路由。
 - 记录请求、延迟、重试、输入/输出/cache token、provider 健康状态和费用估算。
 - 提供 Web Dashboard 管理 API Key、用户、团队/项目、配额、日志、provider 配置、模型库存、别名、备份和运行参数。
+- 支持同一 provider 配置多个上游账号，并按手动、故障切换或轮询策略作为 API 服务号池使用。
 - 支持 Docker Compose、本地源码开发、systemd、Prometheus metrics 和投产验收脚本。
 
 Runvara 适合个人和可信小团队环境，不建议直接暴露到公网。
@@ -259,6 +260,26 @@ Dashboard 使用账号登录，不直接使用 router token。首个管理员来
 | `local_llamacpp` | OpenAI-compatible | `RUNVARA_ENABLE_LOCAL_LLAMACPP`, `LLAMACPP_BASE_URL`, `LLAMACPP_MODEL` |
 
 兼容状态和实测记录见 [docs/PROVIDER_MATRIX.md](docs/PROVIDER_MATRIX.md)。
+
+## Provider 账号
+
+每个 provider 可以维护多个上游账号配置。账号配置只保存：
+
+- 显示名称
+- API Key 环境变量名
+- 可选 Base URL 覆盖
+
+Runvara 不会把上游 API Key 明文写入控制面。真实 key 仍放在 `.env` 或进程环境变量里，然后在 Dashboard 的 Provider 卡片中创建例如 `MIMO_OPENAI_API_KEY_MAIN`、`MIMO_OPENAI_API_KEY_BACKUP` 这样的账号配置。
+
+上游账号支持三种号池策略：
+
+| 策略 | 行为 |
+| --- | --- |
+| 手动 | 固定使用当前选中的账号。 |
+| 故障切换 | 默认策略；优先使用当前账号，遇到账号、Key 缺失或限流类失败后切到下一个可用账号。 |
+| 轮询 | 每次请求在启用、Key 可用且未冷却的账号之间分摊。 |
+
+Dashboard 会在 Provider 卡片的“上游账号”区域展示策略选择、当前账号、每个账号的 Key 状态、请求次数、成功率、最近使用时间、冷却状态和最近错误。Provider 健康状态也会对最近失败做分类和建议，例如 `429` 会显示为限流，余额/API Key 问题会显示为账号问题。
 
 ## 模型切换
 
