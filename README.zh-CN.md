@@ -19,10 +19,10 @@ Runvara 是面向 Claude Code / VS Code Claude 的本地模型网关。它在本
 | Dashboard | `http://127.0.0.1:5173` |
 | 本地 API | `http://127.0.0.1:17878` |
 | 默认 provider | `deepseek` |
-| Claude 模型 | `deepseek-v4-pro` |
+| Claude 模型 | `deepseek-v4-flash` |
 | 存储 | Docker Compose PostgreSQL volume |
 
-`mimo-v2.5-pro` 仍然是已支持模型，但它是否可用取决于上游额度、余额和限流状态。当前本机 Claude settings 已经指向 `deepseek-v4-pro`。
+标准样例路径是 DeepSeek 官方 Anthropic-compatible API，模型使用 `deepseek-v4-flash`。
 
 ## 实际界面
 
@@ -79,15 +79,15 @@ RUNVARA_POSTGRES_PASSWORD=replace-with-a-long-random-postgres-password
 RUNVARA_DEFAULT_PROVIDER=deepseek
 DEEPSEEK_ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
 DEEPSEEK_ANTHROPIC_AUTH_TOKEN=replace-with-real-deepseek-api-key
-DEEPSEEK_MODEL=deepseek-v4-pro
+DEEPSEEK_MODEL=deepseek-v4-flash
 
 ANTHROPIC_BASE_URL=http://127.0.0.1:17878
-ANTHROPIC_MODEL=deepseek-v4-pro
-ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro
-ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro
-ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-pro
-ANTHROPIC_SMALL_FAST_MODEL=deepseek-v4-pro
-CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-pro
+ANTHROPIC_MODEL=deepseek-v4-flash
+ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-flash
+ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-flash
+ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash
+ANTHROPIC_SMALL_FAST_MODEL=deepseek-v4-flash
+CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash
 ```
 
 启动：
@@ -100,7 +100,7 @@ docker compose ps
 打开：
 
 - Dashboard：`http://127.0.0.1:5173`
-- 健康检查：`http://127.0.0.1:17878/health`
+- 存活检查：`http://127.0.0.1:17878/livez`
 - Messages API：`http://127.0.0.1:17878/v1/messages`
 
 使用 `RUNVARA_ADMIN_USERNAME` 和 `RUNVARA_ADMIN_PASSWORD` 登录 Dashboard。
@@ -123,7 +123,7 @@ docker compose ps
 
 ```json
 {
-  "claudeCode.selectedModel": "deepseek-v4-pro",
+  "claudeCode.selectedModel": "deepseek-v4-flash",
   "claudeCode.environmentVariables": [
     {
       "name": "ANTHROPIC_BASE_URL",
@@ -135,27 +135,27 @@ docker compose ps
     },
     {
       "name": "ANTHROPIC_MODEL",
-      "value": "deepseek-v4-pro"
+      "value": "deepseek-v4-flash"
     },
     {
       "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
-      "value": "deepseek-v4-pro"
+      "value": "deepseek-v4-flash"
     },
     {
       "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
-      "value": "deepseek-v4-pro"
+      "value": "deepseek-v4-flash"
     },
     {
       "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
-      "value": "deepseek-v4-pro"
+      "value": "deepseek-v4-flash"
     },
     {
       "name": "ANTHROPIC_SMALL_FAST_MODEL",
-      "value": "deepseek-v4-pro"
+      "value": "deepseek-v4-flash"
     },
     {
       "name": "CLAUDE_CODE_SUBAGENT_MODEL",
-      "value": "deepseek-v4-pro"
+      "value": "deepseek-v4-flash"
     }
   ]
 }
@@ -168,7 +168,7 @@ docker compose ps
 本地健康检查：
 
 ```bash
-curl http://127.0.0.1:17878/health
+curl http://127.0.0.1:17878/livez
 ```
 
 带鉴权的模型列表：
@@ -180,7 +180,7 @@ curl -sS \
   http://127.0.0.1:17878/v1/models
 ```
 
-真实 `deepseek-v4-pro` 调用：
+真实 `deepseek-v4-flash` 调用：
 
 ```bash
 source .env
@@ -189,7 +189,7 @@ curl -sS \
   -H "Content-Type: application/json" \
   http://127.0.0.1:17878/v1/messages \
   -d '{
-    "model": "deepseek-v4-pro",
+    "model": "deepseek-v4-flash",
     "max_tokens": 96,
     "messages": [
       {
@@ -203,7 +203,7 @@ curl -sS \
 Provider 兼容性检查：
 
 ```bash
-scripts/provider-matrix.sh --model deepseek-v4-pro
+scripts/provider-matrix.sh --model deepseek-v4-flash
 ```
 
 完整本地检查：
@@ -220,7 +220,9 @@ scripts/acceptance.sh
 
 | Endpoint | 鉴权 | 作用 |
 | --- | --- | --- |
-| `GET /health` | 不需要 | 运行状态和 provider 健康状态。 |
+| `GET /livez` | 不需要 | 最小化存活探针。 |
+| `GET /health` | 不需要 | 公开最小健康状态；带鉴权时返回详细 provider 状态。 |
+| `GET /readyz` | 需要 | 详细就绪状态、provider 健康和存储信息。 |
 | `GET /v1/models` | 需要 | Anthropic 风格模型列表。 |
 | `POST /v1/messages` | 需要 | Anthropic-compatible messages API。 |
 | `GET /metrics` | 需要 | Prometheus 文本指标。 |
@@ -234,6 +236,28 @@ Authorization: Bearer <RUNVARA_AUTH_TOKEN>
 ```
 
 Dashboard 使用账号登录，不直接使用 router token。首个管理员来自 `RUNVARA_ADMIN_USERNAME` 和 `RUNVARA_ADMIN_PASSWORD`。
+
+团队共享部署可以在创建 Dashboard API Key 后设置 `RUNVARA_REQUIRE_CONTROL_API_KEYS=1`。这会在 `/v1/*` 和 `/metrics` 上禁用 legacy 单 router token，让每个 key 的模型/provider 策略、IP 限制、配额和速率限制都被一致执行。
+
+## 请求护栏
+
+Runvara 内置了一组适合个人和小团队部署的进程内限制，不依赖 Redis 或额外网关：
+
+| 变量 | 默认值 | 作用 |
+| --- | --- | --- |
+| `RUNVARA_RATE_LIMIT_GLOBAL_PER_MINUTE` | `6000` | 全局每分钟 messages 数。 |
+| `RUNVARA_RATE_LIMIT_API_KEY_PER_MINUTE` | `600` | 每个 API Key 或 legacy router token 的每分钟 messages 数。 |
+| `RUNVARA_RATE_LIMIT_IP_PER_MINUTE` | `1200` | 每个客户端 IP 的每分钟 messages 数。 |
+| `RUNVARA_RATE_LIMIT_PROVIDER_PER_MINUTE` | `3000` | 每个解析后 provider 的每分钟 messages 数。 |
+| `RUNVARA_RATE_LIMIT_MODEL_PER_MINUTE` | `1200` | 每个解析后上游模型的每分钟 messages 数。 |
+| `RUNVARA_MAX_MESSAGES` | `200` | 单次 Anthropic 请求允许的最大 messages 数。 |
+| `RUNVARA_MAX_MESSAGES_JSON_CHARS` | `2097152` | 进入路由前允许的最大序列化 `messages` 大小。 |
+| `RUNVARA_MAX_SYSTEM_JSON_CHARS` | `262144` | 进入路由前允许的最大序列化顶层 `system` 大小。 |
+| `RUNVARA_MAX_TOOLS` | `256` | 单次 Anthropic 请求允许的最大 tools 数。 |
+| `RUNVARA_MAX_TOOLS_JSON_CHARS` | `1048576` | 进入路由前允许的最大序列化 `tools` 大小。 |
+| `RUNVARA_MAX_OUTPUT_TOKENS` | `131072` | 允许的最大 `max_tokens`。 |
+
+某个限流维度设置为 `0` 表示关闭该维度。`RUNVARA_RATE_LIMIT_DISABLED=1` 会完全关闭进程内限流。本地限流响应会带 `Retry-After`；额度/预算耗尽仍保持普通 `quota_exceeded` 错误。
 
 ## Providers
 
@@ -269,7 +293,7 @@ Dashboard 使用账号登录，不直接使用 router token。首个管理员来
 - API Key 环境变量名
 - 可选 Base URL 覆盖
 
-Runvara 不会把上游 API Key 明文写入控制面。真实 key 仍放在 `.env` 或进程环境变量里，然后在 Dashboard 的 Provider 卡片中创建例如 `MIMO_OPENAI_API_KEY_MAIN`、`MIMO_OPENAI_API_KEY_BACKUP` 这样的账号配置。
+Runvara 不会把上游 API Key 明文写入控制面。真实 key 仍放在 `.env` 或进程环境变量里，然后在 Dashboard 的 Provider 卡片中创建例如 `DEEPSEEK_ANTHROPIC_AUTH_TOKEN_MAIN`、`DEEPSEEK_ANTHROPIC_AUTH_TOKEN_BACKUP` 这样的账号配置。
 
 上游账号支持三种号池策略：
 
@@ -286,16 +310,15 @@ Dashboard 会在 Provider 卡片的“上游账号”区域展示策略选择、
 直接设置模型：
 
 ```bash
-export ANTHROPIC_MODEL=deepseek-v4-pro
-export ANTHROPIC_MODEL=mimo-v2.5-pro
+export ANTHROPIC_MODEL=deepseek-v4-flash
+export ANTHROPIC_MODEL=deepseek-chat
 export ANTHROPIC_MODEL=qwen-plus
 ```
 
 强制指定 provider：
 
 ```bash
-export ANTHROPIC_MODEL=deepseek:deepseek-v4-pro
-export ANTHROPIC_MODEL=mimo:mimo-v2.5-pro
+export ANTHROPIC_MODEL=deepseek:deepseek-v4-flash
 export ANTHROPIC_MODEL=openrouter:anthropic/claude-sonnet-4
 export ANTHROPIC_MODEL=custom:any-model-name-from-your-upstream
 ```
@@ -304,8 +327,8 @@ export ANTHROPIC_MODEL=custom:any-model-name-from-your-upstream
 
 ```toml
 [aliases]
-main = "deepseek:deepseek-v4-pro"
-mimo = "mimo:mimo-v2.5-pro"
+main = "deepseek:deepseek-v4-flash"
+fast = "deepseek:deepseek-chat"
 local = "local_vllm:qwen2.5-coder"
 ```
 
@@ -335,7 +358,7 @@ npm ci
 npm run dev
 ```
 
-Vite Dashboard 默认监听 `http://127.0.0.1:5173`，并把 `/admin`、`/v1`、`/health` 和 `/metrics` 代理到后端。
+Vite Dashboard 默认监听 `http://127.0.0.1:5173`，并把 `/admin`、`/v1`、`/livez`、`/readyz`、`/health` 和 `/metrics` 代理到后端。
 
 前台运行后端：
 
@@ -387,7 +410,7 @@ curl -sS \
 | `scripts/start.sh` | 构建并后台启动本地后端。 |
 | `scripts/stop.sh` | 停止由脚本启动的本地后端。 |
 | `scripts/restart.sh` | 重启本地后端。 |
-| `scripts/status.sh` | 查看 PID、日志路径、监听端口和 `/health` 状态。 |
+| `scripts/status.sh` | 查看 PID、日志路径、监听端口和 `/livez` 状态。 |
 | `scripts/doctor.sh` | 检查 env、服务、鉴权、VS Code settings 和关键 endpoint。 |
 | `scripts/provider-matrix.sh` | 验证指定模型的非流式和流式兼容性。 |
 | `scripts/acceptance.sh` | 运行个人/小团队投产验收检查。 |
@@ -405,6 +428,7 @@ curl -sS \
 | Provider 是 `degraded` 或 `cooldown` | 最近上游调用失败 | 在 Dashboard settings/logs 中测试 provider，并检查上游额度和状态。 |
 | 上游返回 403 | Provider 账号或 key 被拒绝 | 检查上游 key、账号权限和余额。 |
 | 上游返回 429 | Provider 限流或额度耗尽 | 等待、降流量或切换 provider。 |
+| 本地请求返回 400 | 请求在进入路由前没有通过协议护栏 | 检查 `model`、`messages` 和 `max_tokens`；必要时再调整 `RUNVARA_MAX_*`。 |
 | 大请求返回 413 | 请求体超过配置上限 | 增大 `RUNVARA_MAX_REQUEST_BODY_BYTES`。 |
 | 流式返回 `event: error` | 本地请求开始后，上游流式失败 | 查看请求日志和后端日志。 |
 

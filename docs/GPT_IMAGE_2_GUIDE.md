@@ -7,7 +7,7 @@
 README 里的项目含义图和快速上手图采用“图像模型出方向稿，仓库提交可编辑 SVG”的方式维护：
 
 - `docs/assets/runvara-overview.svg`：解释 Runvara 在 Claude Code、VS Code Claude 和上游 provider 之间的位置。
-- `docs/assets/runvara-quickstart.svg`：解释从 `.env` 到 VS Code Claude 连通 Mimo 的四步流程。
+- `docs/assets/runvara-quickstart.svg`：解释从 `.env` 到 VS Code Claude 连通 DeepSeek 官方 Anthropic-compatible API 的四步流程。
 
 `README.md` 和 `README.zh-CN.md` 共用同一组 SVG 资产，语言通过完整 Markdown 文件切换，避免中英文页面出现不一致的图示版本。这种方式比直接引用外部生成图片更稳：GitHub 能长期渲染，文字可搜索，后续改模型名、端口、provider 时可以直接编辑 SVG。
 
@@ -20,11 +20,11 @@ README 里的项目含义图和快速上手图采用“图像模型出方向稿�
 可用于 `gpt-image-2` 重新生成方向稿的 prompt：
 
 ```text
-Create a clean technical README architecture infographic for an open source developer tool called "Runvara". Wide 16:9 aspect ratio, modern GitHub README style, crisp readable labels, generous spacing. Visual concept: VS Code Claude / Claude Code on the left sends Anthropic Messages API to a local gateway box labeled "Runvara" in the center, then Runvara routes to configured providers on the right: Mimo v2.5 Pro, DeepSeek, Anthropic, OpenAI-compatible, OpenRouter, Ollama / Custom. Show only implemented or validated ideas as small badges: Local token auth, Model routing, Protocol transform, Streaming SSE, Mimo text de-dup, Health and metrics. Use a professional light theme with white background, deep teal and graphite accents, small orange highlight for Mimo. Avoid clutter, no fake UI screenshots, no tiny unreadable text, no unsupported fallback claim, no external logos.
+Create a clean technical README architecture infographic for an open source developer tool called "Runvara". Wide 16:9 aspect ratio, modern GitHub README style, crisp readable labels, generous spacing. Visual concept: VS Code Claude / Claude Code on the left sends Anthropic Messages API to a local gateway box labeled "Runvara" in the center, then Runvara routes to configured providers on the right: DeepSeek v4 flash, Anthropic, OpenAI-compatible, OpenRouter, Ollama / Custom. Show only implemented ideas as small badges: Local token auth, Model routing, Protocol transform, Streaming SSE, DeepSeek official Anthropic, Health and metrics. Use a professional light theme with white background, deep teal and graphite accents. Avoid clutter, no fake UI screenshots, no tiny unreadable text, no unsupported fallback claim, no external logos.
 ```
 
 ```text
-Create a clean GitHub README quick-start infographic for a developer tool named "Runvara". Wide 16:9 but simple and readable. Show four numbered steps in a spacious 2x2 grid: 1 Prepare env, 2 Validate config, 3 Start gateway, 4 Connect Claude. Include short command snippets only: cp .env.example .env, BASE_URL=https://w.ciykj.cn/v1, scripts/config-validate.sh, scripts/start.sh, ANTHROPIC_MODEL=mimo-v2.5-pro, ANTHROPIC_BASE_URL=http://127.0.0.1:17878. Use professional light theme, teal and graphite accents, orange highlight for Mimo. Add status chips: health ok, auth ok, Mimo upstream ok, stream ok. Keep every text line short enough to remain readable on GitHub. No fake logos, no clutter, no tiny text.
+Create a clean GitHub README quick-start infographic for a developer tool named "Runvara". Wide 16:9 but simple and readable. Show four numbered steps in a spacious 2x2 grid: 1 Prepare env, 2 Validate config, 3 Start gateway, 4 Connect Claude. Include short command snippets only: cp .env.example .env, DEEPSEEK_ANTHROPIC_AUTH_TOKEN=..., scripts/config-validate.sh, scripts/start.sh, ANTHROPIC_MODEL=deepseek-v4-flash, ANTHROPIC_BASE_URL=http://127.0.0.1:17878. Use professional light theme with teal and graphite accents. Add status chips: health ok, auth ok, DeepSeek upstream ok, stream ok. Keep every text line short enough to remain readable on GitHub. No fake logos, no clutter, no tiny text.
 ```
 
 ## 官方能力边界
