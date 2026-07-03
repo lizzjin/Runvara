@@ -10,6 +10,56 @@ Runvara 是面向 Claude Code / VS Code Claude 的本地模型网关。它在本
 
 ![Runvara architecture overview](docs/assets/runvara-overview.svg)
 
+## 项目介绍
+
+Runvara 是一个本地模型路由网关，不是聊天应用，也不是重型企业模型平台。它的核心职责是让 Claude Code 和 VS Code Claude 继续使用它们熟悉的 Anthropic Messages API，同时由 Runvara 在这个协议边界上处理鉴权、路由、协议转换、provider 健康状态、请求日志、配额和账号治理。
+
+项目面向个人、独立开发者和小团队：你只需要维护一个稳定的本地端口，把日常编码工作流接到不同上游模型。实际使用时，编辑器请求 `http://127.0.0.1:17878/v1/messages`，Runvara 再把请求解析到 DeepSeek 官方 Anthropic-compatible API、OpenAI-compatible provider、Anthropic、OpenRouter、Mimo、Ollama 或自定义本地运行时。
+
+当前标准样例刻意保持保守：使用 DeepSeek 官方 Anthropic-compatible API，模型使用 `deepseek-v4-flash`。这样主链路更接近 Claude Code 的原始协议形态，减少不必要的转换风险，也为后续 provider 适配提供一个清晰样板。
+
+Runvara 由三层能力组成：
+
+- **协议网关层：**接收 Anthropic-compatible 客户端请求，校验请求结构，执行轻量限制，然后直通 Anthropic-compatible 上游或转换到 OpenAI-compatible 上游。
+- **路由与策略层：**解析 `provider:model`、别名、默认 provider、模型前缀、provider 顺序、API Key 策略、团队策略、配额、IP allowlist 和 provider 账号池。
+- **运维控制面：**通过 Dashboard 管理 API Key、用户、团队/项目、provider 生命周期、模型库存、日志、指标、健康状态、备份、诊断和配置热加载。
+
+## GPT Image 2 定位
+
+`gpt-image-2` 是 Runvara 后续多模态方向的重要参考，但不应该混入当前 Claude Code 文本主链路。当前已经实现的主路径是面向编码工作流的 Anthropic-compatible 文本消息和 SSE 流式响应。图片生成和编辑有完全不同的运维约束：更大的请求和响应体、base64 或文件载荷、multipart 编辑、没有文本 token 流式语义、更敏感的成本控制，以及更严格的日志脱敏要求。
+
+因此，Runvara 对 GPT Image 2 的定位是独立扩展方向：
+
+- README 图示可以用 `gpt-image-2` 生成方向稿，再提交为可编辑的 `docs/assets` SVG。
+- 未来图片能力应使用独立 provider 协议，例如 `openai-images`。
+- 未来图片接口应使用明确的图片路由，例如 `POST /v1/images/generations` 和 `POST /v1/images/edits`。
+- 已有控制面能力可以复用：API Key、provider 路由、配额、请求大小限制、secret redaction、provider health 和 Dashboard 诊断。
+
+详细扩展建议见 [docs/GPT_IMAGE_2_GUIDE.md](docs/GPT_IMAGE_2_GUIDE.md)。当前 README 不把 GPT Image 2 服务能力描述为已实现能力。
+
+## 项目重难点
+
+| 方向 | 难点 | 当前处理方式 |
+| --- | --- | --- |
+| 协议兼容性 | Claude Code 期望 Anthropic Messages 语义，但很多上游是 OpenAI-compatible chat API，请求字段、流式 chunk、tool-call 形态和错误体都不一致。 | 保持 Anthropic 作为客户端契约，使用聚焦的 provider adapter，支持 provider 级 `max_tokens` 行为；DeepSeek 官方 Anthropic-compatible 路径尽量直通，并用测试覆盖 streaming、tool 和错误映射。 |
+| 流式正确性 | SSE 流可能重放部分文本、拆分 JSON frame、增量输出 tool-call arguments，或者在响应头发出后才失败。 | 统一解析 SSE frame，把上游流式错误映射为 Anthropic-style error event，对需要的 provider 做流式文本去重，并把 provider 特性收敛到 adapter 配置里。 |
+| 路由策略 | 小型网关也需要稳定处理模型 ID、别名、`provider:model`、前缀、默认 provider、禁用 provider、发现模型和账号池。 | 使用运行时配置快照加控制面 override，在 Dashboard 暴露模型库存，并验证公开模型列表只包含可用且已配置的 provider。 |
+| 鉴权与权限 | 个人使用希望一个本地 token 就能跑，小团队又需要每个 key 的限制，但不想引入 OIDC 或重型企业身份系统。 | 保留 legacy router token 作为本地简单模式，同时支持 Dashboard 签发 API Key、模型/provider 白名单、IP 限制、配额、费用限制和可选的 `RUNVARA_REQUIRE_CONTROL_API_KEYS=1`。 |
+| 安全边界 | Provider URL、Dashboard 写操作、公开健康检查、日志和上游错误体都可能成为 SSRF 或 secret 泄漏入口。 | 校验 provider base URL，默认阻止 private/metadata 地址，错误信息做 secret redaction，Dashboard 写操作校验 CSRF/Origin，详细 readiness 需要鉴权，请求体在路由前做大小限制。 |
+| 稳定性与账号治理 | 上游失败形态很多：限流、5xx、无效 key、余额不足、慢流、半截响应。 | 记录 provider 和 credential health，设置 cooldown，支持手动/故障切换/轮询账号池，余额不足渠道标记 `代充值`，并提供 `livez`、`readyz`、smoke、acceptance 和 doctor 脚本。 |
+| 可观测性与低运维 | 个人和小团队需要足够诊断能力，但不适合一开始就引入 Redis、Kubernetes、服务网格或外部 tracing。 | 使用进程内 metrics、带鉴权的 Prometheus 输出、请求日志、trace/request id、provider health、Dashboard 诊断、PostgreSQL 或 JSON 存储，以及简单 shell 验证脚本。 |
+| 未来图片能力 | GPT Image 2 类工作负载需要不同的 body 限制、成本控制、隐私规则、响应处理和 UI 交互。 | 不把图片能力塞进 `/v1/messages`，文档中规划独立 `openai-images` 扩展路径，并要求图片路由上线前先完成请求/响应上限和 base64 脱敏。 |
+
+## Tool Use 兼容性
+
+Runvara 把 tool use 当成协议契约的一部分，而不是普通文本转发。DeepSeek Anthropic-compatible 路径会保留 Anthropic 原生的 `tools`、`tool_choice`、`tool_use` 和 `tool_result` 结构。OpenAI-compatible adapter 会把 Anthropic tool definition 转成 OpenAI function tools，映射 `tool_choice`，把 assistant 的 `tool_use` 转成 `tool_calls`，并把 user 的 `tool_result` 转成 `role=tool` 消息。
+
+响应侧会把 OpenAI `tool_calls` 转回 Anthropic `tool_use` content block。流式 tool call 会按上游 tool-call index 维护状态，并输出 Anthropic 风格的 `content_block_start`、`input_json_delta` 和 `content_block_stop`。对于会重放累计 tool arguments 的 provider，Runvara 会对 arguments 分片做去重，并在收尾时尽量恢复最完整的 JSON object。
+
+网关现在会在路由前校验 tool name、`tool_choice`、assistant `tool_use`、user `tool_result` 和工具载荷大小。Provider 也会暴露轻量 `tool_use` capability matrix，覆盖是否支持 tool use、`tool_choice`、并行工具调用，以及流式 arguments 模式：`native`、`delta`、`cumulative` 或 `best_effort`。strict fidelity 模式仍会拒绝 OpenAI-compatible provider 无法安全保真的 Anthropic 特性。后续可以基于这个矩阵继续演进内部 Tool IR，但当前实现已经覆盖 Claude Code 常见工具调用主链路，同时避免过早引入过重抽象。
+
+详细 Tool Use 契约、校验规则、provider 能力矩阵和流式行为见 [docs/TOOL_USE_COMPATIBILITY.md](docs/TOOL_USE_COMPATIBILITY.md)。
+
 ## 当前实际配置
 
 当前工作区已经按下面配置启动并验证：
@@ -212,9 +262,10 @@ scripts/provider-matrix.sh --model deepseek-v4-flash
 scripts/config-validate.sh
 scripts/status.sh
 scripts/acceptance.sh
+scripts/tool-use-acceptance.sh
 ```
 
-`scripts/acceptance.sh --upstream` 和 `scripts/provider-matrix.sh --all` 会产生真实上游调用，可能产生费用。
+`scripts/acceptance.sh --upstream`、`scripts/tool-use-acceptance.sh --upstream` 和 `scripts/provider-matrix.sh --all` 会产生真实上游调用，可能产生费用。
 
 ## API
 
@@ -414,6 +465,7 @@ curl -sS \
 | `scripts/doctor.sh` | 检查 env、服务、鉴权、VS Code settings 和关键 endpoint。 |
 | `scripts/provider-matrix.sh` | 验证指定模型的非流式和流式兼容性。 |
 | `scripts/acceptance.sh` | 运行个人/小团队投产验收检查。 |
+| `scripts/tool-use-acceptance.sh` | 用本地 mock provider 验证 Tool Use 转换和校验。 |
 | `scripts/bench.sh` | 测量本地和可选上游延迟。 |
 | `scripts/build-release.sh` | 构建 `target/release/runvara`。 |
 | `scripts/check.sh` | 运行 fmt、tests 和 clippy。 |
