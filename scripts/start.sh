@@ -20,7 +20,7 @@ else
   rm -f "$PID_FILE"
 fi
 
-if [[ ! -x "$RELEASE_BIN" || "${RUNVARA_FORCE_BUILD:-0}" == "1" ]]; then
+if ! release_is_fresh || [[ "${RUNVARA_FORCE_BUILD:-0}" == "1" ]]; then
   "$SCRIPT_DIR/build-release.sh"
 fi
 

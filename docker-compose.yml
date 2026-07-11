@@ -21,15 +21,23 @@ services:
       context: .
       dockerfile: Dockerfile
     image: runvara:local
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
     env_file:
-      - .env
+      - ${RUNVARA_COMPOSE_ENV_FILE:-.env}
     environment:
       RUNVARA_BIND: 0.0.0.0:17878
       RUNVARA_ENV_FILE: /config/.env
       RUNVARA_STATE_DIR: /data
       RUNVARA_CONTROL_STORE: /data/control-plane.json
       RUNVARA_CONFIG: /config/config.toml
-      RUNVARA_DATABASE_URL: postgres://${RUNVARA_POSTGRES_USER:-runvara}:${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}@postgres:5432/${RUNVARA_POSTGRES_DB:-runvara}
+      RUNVARA_DATABASE_URL: ${RUNVARA_DATABASE_URL:-postgres://${RUNVARA_POSTGRES_USER:-runvara}:${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}@postgres:5432/${RUNVARA_POSTGRES_DB:-runvara}}
       RUNVARA_TRUSTED_PROXIES: ${RUNVARA_TRUSTED_PROXIES:-127.0.0.1,::1,172.16.0.0/12}
       RUNVARA_ALLOWED_ORIGINS: ${RUNVARA_ALLOWED_ORIGINS:-}
       RUST_LOG: ${RUST_LOG:-runvara=info,tower_http=info}
@@ -39,7 +47,10 @@ services:
       - "${RUNVARA_API_PUBLISH:-127.0.0.1:17878}:17878"
     volumes:
       - runvara-data:/data
-      - ./.env:/config/.env:ro
+      - type: bind
+        source: ${RUNVARA_COMPOSE_ENV_FILE:-./.env}
+        target: /config/.env
+        read_only: true
       # Optional file-based provider config:
       # - ./config.toml:/config/config.toml:ro
     depends_on:
@@ -52,11 +63,19 @@ services:
       context: .
       dockerfile: dashboard/Dockerfile
     image: runvara-dashboard:local
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
     depends_on:
       runvara:
         condition: service_healthy
     ports:
-      - "${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:5173}:80"
+      - "${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:5173}:8080"
     restart: unless-stopped
 
 volumes:
