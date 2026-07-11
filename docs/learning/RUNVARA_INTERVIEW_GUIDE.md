@@ -1,5 +1,9 @@
 # Runvara 技术面经
 
+> **非规范、基于版本的讲解材料。** 最后复核于 2026-07-11。行为和限制以
+> [Architecture](../ARCHITECTURE.md)、[API](../API.md) 与
+> [Operations](../OPERATIONS.md) 为准；不要把概念图或建议话术当成已验证能力。
+
 这份材料用于把 Runvara 讲成一个完整工程项目，而不是一个 API 转发 demo。面试时建议按“定位 -> 架构 -> 请求链路 -> Tool Use -> 协议层 -> 安全稳定观测 -> 验证闭环”的顺序讲。
 
 ## 0. 开场版本
@@ -10,7 +14,7 @@
 
 3 分钟版本：
 
-> Runvara 的核心链路是 Client Apps -> Runvara Gateway -> Provider Pool。客户端可以是 IDE 插件、Web、移动端或自定义客户端；网关侧用 Rust + Axum 承接请求，在入口做鉴权、策略、配额和模型解析，然后根据 provider 协议选择 Anthropic-compatible 直通或 OpenAI-compatible 转换。返回时再统一做错误映射、token/费用统计、request log、metrics 和 Provider health 更新。项目里比较有技术含量的是 Tool Use 协议适配、SSE streaming 归一化、安全边界、凭证池和 fallback。
+> Runvara 的核心链路是 Client Apps -> Runvara Gateway -> Provider Pool。客户端通过 Anthropic-compatible API 接入；网关侧用 Rust + Axum 承接请求，在入口做鉴权、校验、模型解析、限流和配额检查，然后根据 provider 协议选择 Anthropic-compatible 直通或 OpenAI-compatible 转换。非流式请求完成后记录 usage、request log、metrics 和 Provider outcome。普通 live stream 在响应头发出后的完成态、最终 usage 和 health 更新目前还没有完全闭环；buffered stream 会先完成上游但牺牲首字延迟，这是必须主动说明的边界。
 
 面试完整展开时，可以按下面 5 张图讲。
 
@@ -49,7 +53,7 @@
 
 推荐讲法：
 
-> 一次请求进入网关后，先经过 Auth & Policy。这里会区分 legacy token、API Key、Admin Session，并结合 Team Policy、IP Allowlist 和 Quota 做权限判断。然后进入 Model Resolution，把用户传入的 model 解析成具体 provider、真实模型、可用凭证和 fallback 候选。接着 Protocol Adapter 决定是走 Anthropic-compatible 直通，还是转换成 OpenAI Chat/SSE。Provider 返回后再做 Response Mapping，把错误、token、费用、stop_reason 和日志指标统一起来。
+> 数据面请求先区分 legacy token 和控制台签发的 API Key；Admin Session 只用于控制面，不参与 `/v1/messages` 鉴权。API Key 每次鉴权会复查 owner 仍是 active 用户。请求经过结构校验（包括必填、正数且有上限的 `max_tokens`）、Model Resolution 和进程内 rate limit，再按候选 Provider 选择 credential、检查 Team/IP/Quota policy，最后进入协议适配。只有实际开始 upstream attempt 才会增加 quota/spend；attempt-level preflight 如果进入 usage recorder 会记零 usage，早期 ingress 拒绝可能没有持久日志。非流式 Provider 返回后做 response mapping 和 usage 记录；普通 live stream 在响应头后的错误只能通过 SSE 事件表达，不能假装已经完成普通 fallback 和精确计费闭环。`buffer_stream_text` 是例外：先完成非流式上游和转换，再创建本地 SSE。
 
 可以按模块展开：
 
@@ -68,7 +72,7 @@
 
 **Q: 为什么要做 readyz 和 livez？**
 
-`livez` 判断进程活着，适合基础存活探测；`readyz` 更适合判断服务是否准备好处理真实请求，并返回 Provider health、存储状态等更具体的信息。
+`livez` 只判断进程能否响应；`readyz` 需要鉴权、验证 auth/control 存储可读，并返回 Provider health 等诊断信息。它不会因为某个上游降级就返回失败，因此应讲成“存储 readiness + Provider 诊断”，不是全 Provider 门禁。
 
 相关代码：
 
@@ -165,7 +169,7 @@ Streaming 输出可以这样讲：
 - 累计文本回放：只保留新增 suffix。
 - 工具参数回放：`input_json_delta` 去重。
 - 非对象 arguments：包装为 `_raw_arguments`。
-- 上游非 SSE：缓冲后统一输出。
+- 上游非 SSE：先等待并转换完整响应，再创建本地 SSE；上游错误仍走 pre-header HTTP/fallback，usage 可进入正常计费。
 - OpenAI legacy `function_call`：转换为 Anthropic `tool_use`。
 
 可追问回答：
@@ -198,47 +202,54 @@ Anthropic `tool_use.input` 期望是对象。如果 OpenAI-compatible 上游返�
 - Admin Session 用于控制台登录。
 - CSRF 保护控制台写操作。
 - API Key 表示调用身份。
+- admin 管完整 Key policy；user 仅管理自己 Key 的 name/group、revoke/delete；viewer 只读。
 - Team Policy 控制 provider/model 权限。
+- 被 Key 引用的 Team 必须先迁移/删除引用，不能直接删除。
 - IP Allowlist 限制来源。
 
 安全治理：
 
 - Provider URL SSRF Guard。
-- 禁止 userinfo 与 metadata IP。
+- 禁止 URL userinfo/query/fragment 与危险的字面量 metadata/private IP；凭证只走 env/header，DNS 解析仍是边界。
+- 非 local/custom Provider 默认强制 HTTPS；远程 HTTP 放行会明文暴露 API Key 和 prompt/response。
 - 请求体大小限制。
-- CORS / Origin Guard。
+- 控制台 CSRF / Origin 写保护（不是通用 CORS）。
+- 可信代理从 XFF 右侧剥离可信 hop；Docker Nginx 覆盖 XFF 并保留 Host 端口。
 - Secret Redaction。
 - 错误响应最小暴露。
 
 稳定性策略：
 
 - Rate Limit。
+- Concurrent Stream Permit（默认继承总并发，持有到 body 完成/释放）。
 - Quota / Budget。
-- Credential Pool。
+- 用户 quota 是 UTC 自然日/周/月；API Key/Team spend 是 rolling 5h/24h/7d/30d 小时桶估算。
+- Credential Pool（automatic pool 无 usable 账号时 fail closed）。
 - Fallback Candidate。
 - Cooldown。
-- 余额不足展示“代充值”标记。
+- 余额不足展示“等待充值”标记。
 - Provider Health 分类。
 
 可观测和诊断：
 
 - Request Logs。
-- Trace ID。
+- Request ID（不是完整分布式 Trace）。
 - Prometheus Metrics。
 - `readyz / livez`。
 - Provider Health Dashboard。
 - token / cost / latency。
+- `billingMode` 的 `upstream-returned` / `local-estimate` provenance。
 - retry / fallback 记录。
 
 失败分类可以这样讲：
 
-> 我们不会把所有上游错误都当成 500。网关会区分 `rate_limit`、`account`、`auth`、`transport`、`upstream_protocol`、`server_error`。比如余额不足会被归类成 account issue，设置 `rechargeRequired=true`，控制台展示 `代充值`，同时给出建议操作。
+> 我们不会把所有上游错误都当成 500。网关会区分 `rate_limit`、`account`、`auth`、`transport`、`upstream_protocol`、`server_error`。比如余额不足会被归类成 account issue，设置 `rechargeRequired=true`，控制台展示 `等待充值`，同时给出建议操作。
 
 可追问回答：
 
 **Q: SSRF 防护为什么重要？**
 
-Provider Base URL 是可配置项，如果不限制，攻击者可能把上游地址配置成 metadata IP、内网地址或带 userinfo 的 URL，从而探测本机或内网资源。网关作为本地服务尤其要守住 provider URL 边界。
+Provider Base URL 是可配置项，如果不限制，攻击者可能把上游地址直接配置成 metadata/private IP，或者把凭证塞进 userinfo/query 后被拼接与日志路径泄露。当前 guard 会拒绝 userinfo、query、fragment 和这些危险字面量，凭证必须走 env/header；但它不会固定域名 DNS 或复核解析后的 IP，受威胁部署还需要出站防火墙或 allowlist。
 
 **Q: 控制面和数据面为什么要分开鉴权？**
 
@@ -263,9 +274,9 @@ Provider Base URL 是可配置项，如果不限制，攻击者可能把上游�
 最后用验证链路收住：
 
 ```bash
-cargo fmt -- --check
-cargo test
-cargo clippy --all-targets --all-features -- -D warnings
+cargo fmt --all -- --check
+cargo test --locked --all-targets
+cargo clippy --locked --all-targets --all-features -- -D warnings
 npm run build
 scripts/config-validate.sh
 docker compose up -d --build
@@ -297,7 +308,7 @@ Tool Use 和 streaming 协议归一化。普通文本转发很容易，但工具
 
 **Q: 如何证明它不是只能跑某一个模型？**
 
-架构上 Provider 是协议和配置驱动的，有 Anthropic-compatible、OpenAI-compatible、本地运行时和自定义 Provider 四类入口。DeepSeek 可以作为标准样例，但不是能力边界。
+架构上 Provider 是协议和配置驱动的，有 Anthropic-compatible、OpenAI-compatible、本地运行时和自定义 Provider 四类入口。DeepSeek 只是仓库默认配置样例，不代表真实验证结果，也不是能力边界。
 
 ## 8. 不要这样讲
 

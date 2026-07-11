@@ -1,5 +1,10 @@
 # Runvara 面试问题与回答清单
 
+> **非规范、基于版本的复习材料。** 最后复核于 2026-07-11。权威行为见
+> [Architecture](../ARCHITECTURE.md)、[API](../API.md) 和
+> [Operations](../OPERATIONS.md)。回答必须保留 stream、quota、DNS SSRF 和
+> 持久化边界，不能把配置支持说成真实 Provider 验证。
+
 这份文档用于面试前快速复习。回答不追求背诵，重点是把项目讲成一个有边界、有难点、有取舍、有验证的工程系统。
 
 ## 1. 项目定位
@@ -26,7 +31,7 @@ A: 核心价值是统一模型调用入口，让多客户端、多协议、多 P
 
 ### Q6: 如何证明它不是只适配某个客户端或某个模型？
 
-A: 架构上 Provider 是协议和配置驱动的，支持 Anthropic-compatible、OpenAI-compatible、本地运行时和自定义 Provider。DeepSeek 可以作为标准样例，但不是能力边界。
+A: 架构上 Provider 是协议和配置驱动的，支持 Anthropic-compatible、OpenAI-compatible、本地运行时和自定义 Provider。DeepSeek 是默认配置样例，不是已验证声明或能力边界。
 
 ## 2. 总体架构
 
@@ -44,7 +49,7 @@ A: 数据面负责 `/v1/messages` 等模型调用链路，面向 API Key 或 leg
 
 ### Q10: 一次请求在后端大概怎么走？
 
-A: 请求进入后，先做 body size、鉴权、权限和 quota 检查；再解析 model alias，选择 provider/model/credential/fallback；然后根据 Provider 协议做直通或转换；上游响应回来后做错误映射、token 和费用记录、request log、metrics 和 Provider health 更新。
+A: 请求进入后，先做 body size、鉴权、权限和 quota 检查；`max_tokens` 必填、必须大于零且不能超过全局上限。再解析 model alias，选择 provider/model/credential/fallback；只有真实发起上游 attempt 才累加 quota/spend。上游响应回来后做错误映射、token 和费用记录、request log、metrics 和 Provider health 更新。
 
 ### Q11: 模型路由怎么设计？
 
@@ -146,7 +151,7 @@ A: 同一个工具调用只能被回答一次。重复 `tool_result` 会破坏�
 
 ### Q34: Provider Tool Use 能力矩阵有什么用？
 
-A: 不同 Provider 对 Tool Use、`tool_choice`、parallel tool calls 和 streaming arguments 支持程度不同。能力矩阵可以在路由前做门禁，也能在 Dashboard 展示 Provider 能力。
+A: 不同 Provider 对 Tool Use、`tool_choice`、parallel tool calls 和 streaming arguments 支持程度不同。前三项能力可以在路由前做门禁，也能在 Dashboard 展示；`streaming_arguments` 还会选择 OpenAI-compatible 工具参数流策略：`delta` 保留增量，`cumulative`/`best_effort` 启用去重与完整 JSON 恢复。配置仍需真实上游验收，不能等同于兼容性认证。
 
 ### Q35: Tool Use acceptance 脚本验证什么？
 
@@ -156,7 +161,7 @@ A: 它用 mock OpenAI-compatible upstream 验证非流式 Tool Use response mapp
 
 ### Q36: 当前有哪些鉴权方式？
 
-A: 有 legacy token、Dashboard Admin Session、API Key。legacy token 主要兼容数据面；Admin Session 用于控制台登录；API Key 用于标识调用身份和挂载 quota、policy。
+A: 有 legacy token、Dashboard Admin Session、API Key。legacy token 主要兼容数据面；Admin Session 用于控制台登录；API Key 用于标识调用身份和挂载 quota、policy。Key 必须绑定真实 active 用户，数据面每次鉴权都会复查 owner 状态。
 
 ### Q37: 为什么需要 CSRF？
 
@@ -164,7 +169,7 @@ A: Dashboard 使用 session cookie，控制台写操作需要防止跨站请求�
 
 ### Q38: Team Policy 控制什么？
 
-A: Team Policy 可以限制调用方允许使用哪些 provider 和 model，避免所有 API Key 都拥有同样权限。
+A: Team Policy 可以限制调用方允许使用哪些 provider 和 model，避免所有 API Key 都拥有同样权限。仍被任意 Key 引用的 Team 不能删除，必须先迁移或删除引用 Key。
 
 ### Q39: IP Allowlist 有什么意义？
 
@@ -172,13 +177,13 @@ A: 它限制 API Key 或调用身份的来源地址，适合小团队内网、�
 
 ### Q40: 控制面和数据面为什么必须分开？
 
-A: 模型调用权限和系统管理权限不是一回事。数据面凭证可以发请求，但不能创建用户、修改 Provider 或查看所有日志。分开后权限边界更清晰。
+A: 模型调用权限和系统管理权限不是一回事。admin 管理完整 Key 生命周期和 policy；普通 user 只管理自己 Key 的 name/group，并可 revoke/delete；viewer 只读。数据面凭证本身不能创建用户或修改 Provider。
 
 ## 7. 安全治理
 
 ### Q41: Provider URL SSRF Guard 防什么？
 
-A: 防止可配置的 Provider Base URL 被设置成 metadata IP、内网地址、带 userinfo 的 URL 或其他危险地址，从而通过网关探测本机和内网资源。
+A: 防止可配置的 Provider Base URL 直接使用 metadata/私网字面量 IP、带 userinfo 的 URL 或其他危险格式，从而降低网关探测本机和内网资源的风险。非 local/custom Provider 默认还必须 HTTPS；放行远程 HTTP 会明文暴露 API Key 和 prompt/response，只能用于可信内网。当前校验不会固定 DNS 或重新审查域名解析结果，因此不是完整 SSRF 防线。
 
 ### Q42: 为什么要禁止 URL userinfo？
 
@@ -190,21 +195,21 @@ A: 防止超大请求消耗内存、拖慢服务或造成拒绝服务。网关�
 
 ### Q44: Secret Redaction 做什么？
 
-A: 它会在日志、错误和诊断信息中脱敏 API key、Bearer token、数据库 URL 密码等敏感内容，避免排障时泄露密钥。
+A: 上游错误处理会按常见敏感字段和 token marker 做 best-effort redaction，存储位置展示会遮蔽数据库 URL 密码。它不能识别所有自定义 secret，所以仍然禁止记录或公开原始凭证和未经审查的 Provider body。
 
-### Q45: CORS / Origin Guard 解决什么问题？
+### Q45: CSRF / Origin 写保护解决什么问题？
 
-A: 它限制控制台和 API 的跨源访问，避免非可信网页直接调用本地网关或控制面接口。
+A: 控制台写操作要求 CSRF header，并在浏览器提供 Origin/Referer 时校验同源或 allowlist，避免非可信网页驱动已登录 session。后端没有通用 CORS response policy，数据面跨源访问并没有靠这项检查统一限制；推荐同源反向代理。
 
 ## 8. 稳定性
 
 ### Q46: Rate Limit 和 Quota 的区别是什么？
 
-A: Rate Limit 更偏单位时间请求控制，防止瞬时流量过大；Quota/Budget 更偏长期用量或花费控制，防止 API Key 或团队超额消耗。
+A: Rate Limit 更偏单位时间请求控制。另有独立 concurrent-stream semaphore，默认继承总并发，permit 持有到 response body 完成/释放，耗尽立即 429。用户 quota 的 daily/weekly/monthly 是 UTC 自然周期；API Key/Team 的费用字段则是 rolling 5h/24h/7d/30d。兼容字段 `rateLimited` 指启用周期费用限额，不是请求速率。
 
 ### Q47: Credential Pool 有什么作用？
 
-A: 同一个 Provider 可以配置多个上游凭证。凭证池可以支持轮询、手动选择、故障切换和账号级健康记录，提高可用性。
+A: 同一个 Provider 可以配置多个上游凭证。`manual` 保留手选项；`failover`/`round_robin` 只选 usable credential，没有可用账号时 fail closed 并进入 Provider fallback，不会复用 disabled/cooldown/missing-env 凭证。
 
 ### Q48: Cooldown 是什么？
 
@@ -216,7 +221,7 @@ A: Fallback 是当当前 provider 或 credential 不可用时，基于候选配�
 
 ### Q50: 为什么要识别余额不足？
 
-A: 余额不足和普通 500 不一样。它通常需要用户充值或切换账号。Runvara 会把它归类为 account issue，设置 `rechargeRequired=true`，并展示 `代充值` 标记。
+A: 余额不足和普通 500 不一样。它通常需要用户充值或切换账号。Runvara 会把它归类为 account issue，设置 `rechargeRequired=true`，并展示 `等待充值` 标记。
 
 ### Q51: 上游错误如何分类？
 
@@ -226,7 +231,7 @@ A: 可以分为 `rate_limit`、`account`、`auth`、`transport`、`upstream_prot
 
 ### Q52: Request Logs 记录什么？
 
-A: 记录时间、状态、provider/model、调用身份、状态码、耗时、tokens、费用、网络来源、retry/fallback、错误上下文和请求 id 等，方便排查和审计。
+A: 记录时间、状态、provider/model、调用身份、状态码、耗时、tokens/费用估算、`billingMode`、网络来源、retry/fallback、有限错误信息和 request ID。`upstream-returned` 与 `local-estimate` 区分 usage provenance；attempt-level preflight 行是零 usage，早期 ingress 拒绝可能没有持久行，但两者都是零 quota/spend。它不保存 prompt、完整请求体、原始 Provider 响应或内部协议 IR；普通 live stream 的最终 usage/状态目前也可能未完成对账。
 
 ### Q53: Metrics 有什么价值？
 
@@ -236,19 +241,19 @@ A: Prometheus metrics 可以从服务维度观察请求量、成功失败、延�
 
 A: 展示 provider 或 credential 的请求数、成功率、连续失败、最后错误、最后状态码、冷却状态、余额不足标记和推荐操作。
 
-### Q55: Trace ID 为什么重要？
+### Q55: Request ID 为什么重要？
 
-A: Trace ID 可以把客户端请求、后端日志、上游调用和 Dashboard 记录串起来。出现问题时，可以用一个 id 快速定位整条链路。
+A: `x-request-id` 可以关联客户端响应、Runvara 服务日志和 Dashboard usage record，减少按时间猜测。两条内置协议 adapter 都会把它传给上游，但上游可能忽略或替换。它没有 trace/span parent 语义，不是完整 OpenTelemetry trace，不能宣称覆盖整个分布式调用链。
 
 ### Q56: `readyz` 和 `livez` 有什么区别？
 
-A: `livez` 判断服务进程是否活着；`readyz` 判断服务是否准备好处理真实请求，并可包含存储和 Provider 健康等信息。
+A: `livez` 只证明进程能响应；`readyz` 需要鉴权并验证 auth/control 存储可读，再返回 Provider health 等诊断信息。存储失败会让它失败，但单个 Provider 降级不会，因此它不是全 Provider 就绪判定。
 
 ## 10. 前端与产品体验
 
 ### Q57: Dashboard 为什么不是普通 CRUD？
 
-A: Dashboard 是网关控制面，重点是让用户管理 Provider、模型、API Key、额度、日志和健康状态。它需要面向排障和重复运维场景，而不是单纯表单增删改查。
+A: Dashboard 是网关控制面，重点是让用户管理 Provider、模型、API Key、额度、日志和健康状态。范围图表由服务端对选中窗口的全部 retained usage 聚合，并明确标记 persisted/estimate/empty 数据源和 retention 上限，而不是只统计当前日志页。
 
 ### Q58: 请求日志页面为什么重要？
 
@@ -262,7 +267,7 @@ A: 作为本地控制台，登录页是用户对项目完成度的第一印象�
 
 ### Q60: 这个项目怎么验证？
 
-A: 后端跑 `cargo fmt -- --check`、`cargo test`、`cargo clippy --all-targets --all-features -- -D warnings`；前端跑 `npm run build` 和 lint；配置跑 `scripts/config-validate.sh`；部署跑 `docker compose up -d --build`；最后跑 `scripts/smoke-test.sh` 和 `scripts/tool-use-acceptance.sh`。
+A: 后端跑 `cargo fmt --all -- --check`、`cargo test --locked --all-targets`、`cargo clippy --locked --all-targets --all-features -- -D warnings`；前端跑 typecheck、lint、unit test 和 build；配置跑 `scripts/config-validate.sh`；聚合入口是 `scripts/check-all.sh`。部署再跑 `docker compose up -d --build`、`scripts/smoke-test.sh` 和 `scripts/tool-use-acceptance.sh`。
 
 ### Q61: 为什么 smoke test 不默认跑真实上游生成？
 

@@ -1,5 +1,11 @@
 # Runvara 深度面试问题与回答
 
+> **非规范、基于版本的讲解材料。** 最后复核于 2026-07-11。代码继续演进时，
+> 以 [Architecture](../ARCHITECTURE.md)、[Configuration](../CONFIGURATION.md)、
+> [API](../API.md) 和 [Operations](../OPERATIONS.md) 为准。本文不得作为真实
+> Provider 验证记录，也不得省略 stream 完成态、quota 并发、DNS SSRF 和同步整
+> 文档持久化限制。
+
 这份文档是高级工程师面试版题库。它不是普通功能清单，而是围绕 Runvara 的工程边界、失败模式、取舍、验证和长期演进来组织。
 
 建议使用方式：
@@ -351,7 +357,7 @@ OpenAI stream 里 tool function arguments 可能以增量字符串出现。Runva
 面试官想看你是否能分类 provider streaming 行为。
 
 **简短回答：**
-delta 表示每次只发新增片段；cumulative 表示每次发从开头到当前的累计字符串；best_effort 表示 provider 行为不稳定，需要尽量去重和恢复完整 JSON。Runvara 通过 provider `tool_use.streaming_arguments` 和 `deduplicate_stream_text` 处理差异。
+delta 表示每次只发新增片段；cumulative 表示每次发从开头到当前的累计字符串；best_effort 表示 provider 行为不稳定，需要尽量去重和恢复完整 JSON。Runvara 通过 provider `tool_use.streaming_arguments` 选择工具参数策略；普通文本的重复回放则由独立的 `deduplicate_stream_text` 处理。
 
 **深入展开：**
 标准 delta 可以直接输出 pending arguments。累计回放不能直接输出，否则客户端会看到重复 JSON 片段。Runvara 的 `text_delta` 会根据已见内容计算新增 suffix，`best_complete_json_object` 会从多个候选字符串中提取最长完整对象。当前取舍是做通用去重和恢复，不做 provider-specific 的复杂参数语义修复。
@@ -445,10 +451,10 @@ Anthropic `tool_use.input` 需要对象，但 OpenAI-compatible provider 可能�
 面试官想看你是否能把 provider 差异产品化和配置化。
 
 **简短回答：**
-不同 provider 对 `tool_use`、`tool_choice`、parallel tool calls 和 streaming arguments 支持不一样。Runvara 用 `ToolUseConfig` 描述能力，在路由前做门禁，并在 Dashboard 和文档中展示 provider 能力。
+不同 provider 对 `tool_use`、`tool_choice`、parallel tool calls 和 streaming arguments 支持不一样。Runvara 用 `ToolUseConfig` 描述能力，在路由前做门禁，并在 Dashboard 和文档中展示 provider 能力；其中 `streaming_arguments` 还会实际选择 OpenAI-compatible 工具参数流处理策略。
 
 **深入展开：**
-如果没有能力矩阵，所有 provider 都会被假设支持完整 Tool Use，一旦 provider 不支持就会产生模糊上游错误。`validate_anthropic_tool_capabilities` 会根据 `supported`、`tool_choice` 和 `parallel_tool_calls` 拦截不兼容请求。`streaming_arguments` 则为 provider 的参数流模式提供配置表达。取舍是轻量矩阵，不做重型 provider plugin 系统。
+如果没有能力矩阵，所有 provider 都会被假设支持完整 Tool Use，一旦 provider 不支持就会产生模糊上游错误。`validate_anthropic_tool_capabilities` 会根据 `supported`、`tool_choice` 和 `parallel_tool_calls` 拦截不兼容请求。`streaming_arguments="delta"` 保留增量参数片段，`cumulative` 和 `best_effort` 启用回放去重与完整 JSON 恢复；这仍是轻量配置，不是上游兼容性认证，也不是重型 provider plugin 系统。
 
 **代码/文档依据：**
 - `src/config.rs`
@@ -611,7 +617,7 @@ Provider 配置里有 protocol。Anthropic-compatible provider 走直通，保�
 - 未来支持 native Gemini 怎么扩展？
 
 **回答注意：**
-不要把 DeepSeek 说成唯一主线。它是标准样例，但协议边界支持多 Provider。
+不要把 DeepSeek 说成唯一主线。它只是默认配置样例，不能替代带日期的真实验证；协议边界支持多 Provider。
 
 ### Q26: SSE event 映射为什么要统一成 Anthropic 风格？
 
@@ -712,10 +718,10 @@ Anthropic 使用 `stop_sequences`，OpenAI-compatible 使用 `stop`。Runvara �
 面试官想看你是否关注客户端错误契约。
 
 **简短回答：**
-Streaming 请求中，客户端期望通过 SSE 收到 Anthropic 风格 `error` event，而不是突然断流或收到 provider 原始错误。Runvara 会把 `InvalidRequest/Auth/Quota/Upstream` 等错误映射成 Anthropic error type。
+错误是否进入 SSE 取决于下游响应头是否已经发出。Runvara 会让连接失败、上游非 2xx 和转换失败尽量在 pre-header 阶段走正常 HTTP 错误与 fallback；只有真实流在 HTTP 200 之后才用 Anthropic 风格 `error` event 表达后续失败。
 
 **深入展开：**
-如果上游 stream 连接失败，`openai_stream_to_anthropic` 和 `openai_complete_to_anthropic_stream` 会 yield `anthropic_error_event`，让客户端以协议内方式处理失败。错误类型映射也避免把内部错误结构暴露给客户端。非流式路径则通过统一 AppError 到 HTTP response 映射。
+普通 OpenAI streaming 路径会先 await 上游连接并检查初始状态，因此连接错误和初始非 2xx 不会先返回本地 200；如果已经开始向客户端发 SSE，后续帧解析或上游中断才由 `openai_stream_to_anthropic` 产生协议内 error event。`buffer_stream_text=true` 更进一步：先 await 完整非流式响应并完成 OpenAI 到 Anthropic 转换，再创建本地 SSE，所以其上游 HTTP/JSON/转换失败也都是 pre-header HTTP 错误。统一错误映射与 redaction 避免直接暴露 provider 原始敏感内容。
 
 **代码/文档依据：**
 - `src/types.rs`
@@ -785,10 +791,10 @@ Runvara 把 provider 差异尽量放到配置和能力矩阵里，比如 protoco
 面试官想看你是否关注成本、安全和可诊断性。
 
 **简短回答：**
-请求边界校验可以在消耗上游额度前拒绝明显错误，包括空 messages、非法 role、超大 body、过多 tools、零 `max_tokens` 等。这样错误归因明确，也能降低滥用风险。
+请求边界校验可以在消耗上游额度前拒绝明显错误，包括空 messages、非法 role、超大 body、过多 tools，以及缺失、为零或超过全局上限的 `max_tokens`。这样错误归因明确，也能降低滥用风险。
 
 **深入展开：**
-`validate_message_request` 校验 model 长度、messages 数量、messages JSON 大小、system JSON 大小、tools 数量和 tools JSON 大小。它还限制 role 只能是 `user/assistant`，content 必须是 string 或 array。没有这些限制，大请求会消耗内存和上游资源，错误也会变成 provider 差异化响应。
+`validate_message_request` 校验 model 长度、messages 数量、messages JSON 大小、system JSON 大小、tools 数量和 tools JSON 大小。它还要求 `max_tokens > 0` 且不超过 `RUNVARA_MAX_OUTPUT_TOKENS`，限制 role 只能是 `user/assistant`，content 必须是 string 或 array。没有这些限制，大请求会消耗内存和上游资源，错误也会变成 provider 差异化响应。
 
 **代码/文档依据：**
 - `src/routes/client_api.rs`
@@ -809,10 +815,10 @@ Runvara 把 provider 差异尽量放到配置和能力矩阵里，比如 protoco
 面试官想看你是否考虑上游响应不符合预期的情况。
 
 **简短回答：**
-HTTP 层会解析 SSE frame。如果上游没有产生任何 SSE frame 但返回了 body，Runvara 会把它识别为 non-SSE response 并返回 upstream protocol error，同时对 body 做 secret redaction 和截断。
+SSE 握手必须得到非 204 的 2xx 和 `text/event-stream`。缺失或错误 Content-Type 会在下游 HTTP 200 前失败；错误 body 会受字节上限、总读取 timeout 和 idle timeout 约束，再做 secret redaction。
 
 **深入展开：**
-很多 provider 在错误时不会按 SSE 返回，而是返回 JSON 或纯文本错误。如果网关只按 SSE 读，客户端可能看到空流或挂起。`post_json_sse` 会收集 raw non-SSE line，stream 结束后如果没有 frame 但有 raw body，就返回 `UpstreamProtocol`。错误体会进入 sanitization，避免泄露 Bearer token 或 API key。
+很多 provider 在错误时不会按 SSE 返回，而是返回 JSON 或纯文本错误。`post_json_sse` 在握手阶段检查状态和 media type，并用 `response_body_with_timeouts` 有界读取错误体，避免 slow-drip 永久占用连接。握手后的 native Anthropic 流必须出现 `message_stop`，OpenAI-compatible 流必须出现 `[DONE]` 或 `finish_reason`；缺少终止信号会在已有 HTTP 200 上发 `event: error`，而不是把半截流当成功。
 
 **代码/文档依据：**
 - `src/http.rs`
@@ -832,7 +838,7 @@ HTTP 层会解析 SSE frame。如果上游没有产生任何 SSE frame 但返回
 面试官想看你是否能抽象项目价值。
 
 **简短回答：**
-我会把 DeepSeek 讲成标准样例，而不是能力边界。Runvara 的协议层是按 provider protocol 和 capability 工作的，核心是 Anthropic-compatible 客户端契约和 OpenAI-compatible adapter，而不是绑定某一个模型。
+我会把 DeepSeek 讲成默认配置样例，而不是已验证结果或能力边界。Runvara 的协议层按 provider protocol 和 capability 工作，核心是 Anthropic-compatible 客户端契约和 OpenAI-compatible adapter，而不是绑定某一个模型。
 
 **深入展开：**
 当前 provider 列表和 public model rows 会根据配置展示官方、第三方、本地和自定义来源。路由通过 `AppConfig.resolve`、provider order 和 protocol 选择路径。这样新 provider 的接入重点是配置、模型列表、base URL、安全校验和 acceptance，而不是改业务主链路。
@@ -885,7 +891,7 @@ HTTP 层会解析 SSE frame。如果上游没有产生任何 SSE frame 但返回
 如果客户端请求 stream，但上游或适配路径拿到的是完整非流式响应，Runvara 可以把完整响应拆成 Anthropic SSE 事件输出。这样客户端仍然得到一致的 `message_start/content_block/message_stop` 生命周期。
 
 **深入展开：**
-`openai_complete_to_anthropic_stream` 会先把完整 OpenAI response 转成 Anthropic message，再逐个 content block 发 SSE。文本会按稳定 chunk 输出，tool_use 会用 `input_json_delta` 输出完整 input。这个兜底让上游不完全支持标准 stream 时，客户端契约仍然尽量稳定。代价是 first-byte latency 不如真实 stream，因为需要等完整上游响应。
+OpenAI-compatible adapter 会先发送非流式请求，await 完整响应、提取 usage，并调用 `openai_response_to_anthropic` 完成协议转换；只有这些步骤成功后才创建本地 SSE response。`openai_complete_to_anthropic_stream` 本身只负责把已经转换好的 Anthropic message 逐个 content block 分块：文本按稳定 chunk 输出，tool_use 用 `input_json_delta` 输出完整 input。这样上游 HTTP 或转换错误仍可在响应头前失败/fallback，usage header 也让 request accounting 使用上游 token；代价是必须等待完整生成才有首字节，而且下游取消时上游生成早已结束。
 
 **代码/文档依据：**
 - `src/providers/openai_stream.rs`
@@ -905,10 +911,10 @@ HTTP 层会解析 SSE frame。如果上游没有产生任何 SSE frame 但返回
 面试官想看你是否关注网关的治理能力，而不只是请求响应。
 
 **简短回答：**
-Runvara 会先基于请求估算 usage，用于 quota 检查；上游返回后如果响应头提供更准确 usage，会用实际 usage 覆盖估算，记录到 metrics 和 usage log 中。这样既能在请求前做预算门禁，也能在请求后做账单和观测。
+Runvara 会先基于请求估算 usage，用于 quota 检查；非流式上游返回后如果本地 response header 带有解析出的 usage，会用它覆盖估算并写入 metrics 和 usage log。日志用 `billingMode=upstream-returned` 和 `local-estimate` 明确 provenance。普通 live stream 当前通常仍使用请求估算；`buffer_stream_text=true` 会先完成非流式上游并把 reported usage 放进内部 response header，因此能覆盖估算，但仍不代表精确账单或下游交付对账。
 
 **深入展开：**
-`estimate_usage` 用 messages/system 的字符数粗略估算 input tokens，并用 `max_tokens` 估算 output tokens。调用完成后，`pricing::usage_from_headers` 如果能解析到真实 token/cost，就替换为 actual estimate。这个设计的取舍是：请求前必须有一个保守估计才能做 quota，精确账单依赖 provider 返回能力。
+`estimate_usage` 用完整请求 JSON 的字符数粗略估算 input tokens，并用 `max_tokens` 估算 output tokens。非流式调用以及 buffered stream 在上游完整返回后，`pricing::usage_from_headers` 如果能解析到 Provider usage，就替换 estimate。普通 live stream 的最终 usage 尚未回灌；即使有 returned usage，本地价格表也决定这些值仍不能当账单。只有 `last_sent` 存在，也就是实际发起过上游尝试，才会增加 quota 和 spend ledger；attempt-level preflight 进入 recorder 时是零 usage，早期 ingress 拒绝可能没有持久行，两者都不收费。
 
 **代码/文档依据：**
 - `src/routes/client_api.rs`
@@ -922,7 +928,7 @@ Runvara 会先基于请求估算 usage，用于 quota 检查；上游返回后�
 - cache read/write tokens 如何记录？
 
 **回答注意：**
-不要宣称所有 provider 都能精确计费。当前是估算和可用真实 usage 结合。
+不要宣称所有 Provider 都能精确计费。当前是估算和部分非流式 returned usage 的结合。
 
 ## C. 安全与鉴权深度问题
 
@@ -935,7 +941,7 @@ Runvara 会先基于请求估算 usage，用于 quota 检查；上游返回后�
 legacy token 适合本地快速接入和兼容旧客户端；API Key 适合控制面管理、绑定用户、team、quota、policy 和 IP allowlist。Runvara 默认保留 legacy 兼容，但可以通过 `RUNVARA_REQUIRE_CONTROL_API_KEYS` 要求使用控制面 API Key。
 
 **深入展开：**
-如果一开始移除 legacy token，会提高迁移成本；如果只保留 legacy token，就无法做精细权限和用量归属。`authenticate_client` 先尝试 control store 的 API Key，再根据 security policy 决定是否允许 legacy router token。这个过渡设计适合个人和小团队逐步升级安全模型。
+如果一开始移除 legacy token，会提高迁移成本；如果只保留 legacy token，就无法做精细权限和用量归属。创建 API Key 时服务端要求 owner 是真实 active 用户并覆盖 canonical username；每次数据面鉴权还会联查 owner 仍存在且 active。`authenticate_client` 先尝试 control store 的 API Key，再根据 security policy 决定是否允许 legacy router token。这个过渡设计适合个人和小团队逐步升级安全模型。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -959,7 +965,7 @@ legacy token 适合本地快速接入和兼容旧客户端；API Key 适合控�
 数据面 API Key 用于模型调用，控制面 Admin Session 用于管理用户、Provider、模型、Key 和日志。两者分开可以避免调用凭证被滥用为管理凭证，也能让控制台写操作使用 CSRF 和 Origin Guard。
 
 **深入展开：**
-`require_admin_user`、`require_console_user`、`require_api_key_writer` 分别表达不同控制面权限。数据面 `authenticate_client` 只返回 `ClientIdentity`，不会授予管理操作权限。如果两者混用，泄露一个调用 key 就可能修改 provider 或读取所有日志，这是本地网关尤其要避免的横向权限扩大。
+`require_admin_user`、`require_console_user`、`require_api_key_writer` 分别表达不同控制面权限。admin 能创建和管理完整 Key policy；普通 user 只能读取自己的 Key、修改 name/group、revoke 或 delete，不能 create/restore/改 policy；viewer 只读。数据面 `authenticate_client` 只返回 `ClientIdentity`，不会授予管理操作权限。如果两者混用，泄露一个调用 key 就可能修改 provider，这是本地网关尤其要避免的横向权限扩大。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -1006,7 +1012,7 @@ Dashboard 使用 session cookie，浏览器会自动带 cookie。没有 CSRF 防
 Team Policy 可以限制允许的 provider 和 model，支持精确匹配和通配前缀。请求进入后，API Key 的身份和 team 信息会参与 quota 和 policy 检查，避免所有 key 都能调用所有模型。
 
 **深入展开：**
-`policy.rs` 提供 `enforce_model_policy` 和 `enforce_provider_policy`，既检查 requested model，也检查 resolved model，防止用户通过 alias 绕过模型限制。通配符支持 `*` 和后缀 `*` 的前缀匹配，足够覆盖小团队常见的 provider/model 分组，而不引入复杂 ABAC/RBAC 系统。
+`policy.rs` 提供 `enforce_model_policy` 和 `enforce_provider_policy`，既检查 requested model，也检查 resolved model，防止用户通过 alias 绕过模型限制。通配符支持 `*` 和后缀 `*` 的前缀匹配，足够覆盖小团队常见的 provider/model 分组，而不引入复杂 ABAC/RBAC 系统。只要任意 active 或 revoked API Key 仍引用 team，删除 team 就返回 400，要求先 reassign/delete Key，避免删除动作静默解除 policy、扩大权限。
 
 **代码/文档依据：**
 - `src/policy.rs`
@@ -1051,7 +1057,7 @@ IP Allowlist 用于限制 API Key 的来源地址，支持精确 IP 和 CIDR。�
 面试官想看你是否理解可配置 URL 带来的服务端请求伪造风险。
 
 **简短回答：**
-Provider base URL 是可配置项，如果不限制，攻击者可能把它配置成 metadata IP、本机管理端口或内网地址，通过网关去探测内部资源。Runvara 在请求前校验 provider URL，默认不允许危险私有地址，除非显式允许本地 provider。
+Provider base URL 是可配置项，如果不限制，攻击者可能把它直接配置成 metadata IP、本机管理端口或内网字面量地址。Runvara 在请求前校验 scheme、userinfo、fragment 和危险的字面量 IP；非 local/custom Provider 还默认强制 HTTPS。`RUNVARA_ALLOW_INSECURE_PROVIDER_HTTP=1` 只适合可信内网，因为 HTTP 会明文暴露 Provider key、prompt 和 response。当前不会解析域名后再次阻止私网地址，所以仍需出站网络策略。
 
 **深入展开：**
 `send_message_attempt` 每次请求前调用 `validate_provider_base_url_for_request`，Provider credential base URL 写入时也会校验。配置项 `RUNVARA_ALLOW_PRIVATE_PROVIDER_URLS` 是显式逃生口，适合本地 runtime 场景，但默认应保持保守。这个设计把 SSRF 防线放在 provider 调用边界，而不是只靠 UI 表单。
@@ -1078,7 +1084,7 @@ Provider base URL 是可配置项，如果不限制，攻击者可能把它配�
 URL userinfo 可能把账号密码藏在 URL 中，也可能造成 host 审查歧义。Runvara 禁止 provider URL 包含 userinfo，避免凭证出现在配置、日志和错误中。
 
 **深入展开：**
-例如 `https://user:pass@example.com` 这种 URL 会让 secret 混在 endpoint 中。更糟的是，复杂 URL 可能让人工审查误判实际 host。Provider API Key 应通过环境变量名管理，而不是塞到 URL。这个边界也和 secret redaction 互补，减少敏感信息进入系统的机会。
+例如 `https://user:pass@example.com` 这种 URL 会让 secret 混在 endpoint 中。更糟的是，复杂 URL 可能让人工审查误判实际 host。Provider API Key 应通过环境变量名管理，而不是塞到 URL。Provider partial update 还用 `clearApiKeyEnv=true` 明确表达清空；省略 `apiKeyEnv` 表示保留，同时发送非空值和 clear flag 会被拒绝。这个边界也和 secret redaction 互补，减少敏感信息进入系统的机会。
 
 **代码/文档依据：**
 - `src/config.rs`
@@ -1140,16 +1146,16 @@ Runvara 会在上游错误体和诊断输出中脱敏敏感字段，包括 `api_
 **回答注意：**
 不要说 redaction 能覆盖所有 secret 模式。它覆盖常见 key 和 marker，仍要避免把 secret 放到不该出现的位置。
 
-### Q48: CORS / Origin Guard 如何保护控制面？
+### Q48: CSRF / Origin 写保护如何保护控制面？
 
 **考察点：**
 面试官想看你是否理解浏览器侧攻击面。
 
 **简短回答：**
-控制面写操作会检查 CSRF header 和 Origin/Referer，允许同源或配置过的 origin，本地 loopback dev port 也有兼容。这样可以避免非可信网页直接驱动已登录用户的控制台。
+控制面写操作会检查 CSRF header 和 Origin/Referer，允许同源或配置过的 origin，本地 loopback dev port 也有兼容。这样可以降低非可信网页直接驱动已登录用户控制台的风险。它不是通用 CORS，也不是鉴权替代品。
 
 **深入展开：**
-`validate_admin_request_origin` 会从 `origin` 或 `referer` 解析 host，与请求 host 做同源匹配，或与 `RUNVARA_ALLOWED_ORIGINS` 比较。`console_host_matches` 对 loopback hostname 做了开发友好处理。它不是完整企业级浏览器安全策略，但对本地控制台足够实用。
+`validate_admin_request_origin` 会从 `origin` 或 `referer` 解析 host，与请求 host 做同源匹配，或与 `RUNVARA_ALLOWED_ORIGINS` 比较。`console_host_matches` 对 loopback hostname 做了开发友好处理。Origin/Referer 缺失时允许非浏览器请求；后端也不返回通用 CORS header。因此正确部署方式仍是 Dashboard/API 同源反代。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -1243,7 +1249,7 @@ Runvara 在响应中添加 `X-Content-Type-Options: nosniff`、`X-Frame-Options:
 只有 peer addr 是可信代理时，Runvara 才会使用 `x-forwarded-for`、`x-real-ip` 或 `cf-connecting-ip` 作为 client IP。否则直接用 TCP peer IP，防止客户端伪造转发头绕过 IP allowlist 和 rate limit。
 
 **深入展开：**
-`TrustedProxyConfig` 默认信任 loopback，并可通过 `RUNVARA_TRUSTED_PROXIES` 增加规则。`client_ip` 函数在 peer trusted 时才读取 forwarded header。这个设计对于 Docker/Nginx/Cloudflare 代理场景有用，也避免了很多系统常见的 “信任任意 X-Forwarded-For” 安全坑。
+`TrustedProxyConfig` 默认信任 loopback，并可通过 `RUNVARA_TRUSTED_PROXIES` 增加规则。`client_ip` 仅在 peer trusted 时读取 forwarded header，并从连接 peer 开始对 XFF 右向左剥离明确可信的代理 hop，选择第一个不可信地址；不会直接采用攻击者可控的最左值。Docker Nginx 用 `$remote_addr` 覆盖 XFF，并用 `$http_host` 保留 Host 端口，避免 Origin/Host 校验错位。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -1316,7 +1322,7 @@ Runvara 当前优先小团队低运维，Admin Session、API Key、Team Policy�
 Runvara 的 RateLimiter 支持 global、API key、IP、provider 和 model 多维度窗口。这样既能防止全局打爆，也能限制单个 key、单个来源、单个 provider 或热点模型。
 
 **深入展开：**
-`RateLimiter::check` 为每个请求构造多个窗口 key，用 `VecDeque` 存时间戳并按滑动窗口清理。命中限制时返回 `RateLimited`，包含 `retry_after_secs`。当前是进程内限流，适合单机本地和小团队；多实例共享限流是未来触发 Redis 或数据库中心化限流的条件。
+`RateLimiter::check` 为每个请求构造多个窗口 key，用 `VecDeque` 存时间戳并按滑动窗口清理。命中限制时返回 `RateLimited`，包含 `retry_after_secs`。Streaming 另有 `RUNVARA_MAX_CONCURRENT_STREAMS` semaphore，默认继承总请求并发；permit 被封装进 response body，直到 body 完成/drop 才释放，耗尽时在上游调用前返回 429。两种限制都是进程内状态，适合单机本地和小团队；多实例共享限流是未来触发 Redis 或数据库中心化限流的条件。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -1340,7 +1346,7 @@ Runvara 的 RateLimiter 支持 global、API key、IP、provider 和 model 多维
 Rate Limit 控制单位时间请求速率，解决瞬时流量和滥用；Quota/Budget 控制一段周期内的 tokens、requests 或 cost，解决长期花费和团队配额。两者都需要，但目标不同。
 
 **深入展开：**
-`check_quotas` 会在上游调用前基于估算 usage 检查 API Key policy 和用户 quota；`record_usage` 在请求结束后累加实际或估算 usage。这样能先挡住明显超额请求，再把真实消耗写入日志和配额。边界是 provider 不返回真实 usage 时只能使用估算。
+`check_quotas` 会在上游调用前基于估算 usage 检查 API Key policy 和用户 quota；只有真实 upstream attempt 开始后，`record_usage` 才会累加 returned usage 或估算。用户 quota 的 daily/weekly/monthly 是 UTC 自然日、周一开始的自然周、自然月。API Key/Team spend 则是 rolling 5h/24h/7d/30d，`rateLimited` 只是“启用周期费用限额”的兼容字段名，不是请求速率开关。滚动 spend 用小时桶，边界会保守计入最老交叠整小时。check/update 不是事务式预留，并发请求仍可能同时通过。
 
 **代码/文档依据：**
 - `src/control.rs`
@@ -1364,7 +1370,7 @@ Rate Limit 控制单位时间请求速率，解决瞬时流量和滥用；Quota/
 Credential Pool 允许同一 provider 配多个上游账号，并支持 `manual`、`failover`、`round_robin` 模式。请求时选择可用 credential，失败时记录账号级健康，必要时自动切到可用账号。
 
 **深入展开：**
-`select_provider_credential_locked` 会过滤 disabled、缺少 env key、仍在 cooldown 的 credential。`failover` 优先当前 active，可用时保持稳定；`round_robin` 在可用账号间轮换；`manual` 保留用户选择。失败后如果模式不是 manual，且 failure kind 可轮转，系统会自动切换并记录 activity。
+`select_provider_credential_locked` 会过滤 disabled、缺少 env key、仍在 cooldown 的 credential。`failover` 优先当前 active，可用时保持稳定；`round_robin` 在可用账号间轮换；`manual` 保留用户选择。自动模式一个 usable credential 都没有时返回 None 并让该 Provider fail closed，再由候选 Provider fallback；不会退回 disabled/cooldown/missing-env 账号。失败后如果模式不是 manual，且 failure kind 可轮转，系统会自动切换并记录 activity。
 
 **代码/文档依据：**
 - `src/control.rs`
@@ -1435,7 +1441,7 @@ provider health 描述整个 provider 的状态，credential health 描述某个
 Cooldown 用于短时间避开连续失败的 provider 或 credential，减少重复打到故障点。Runvara 根据连续失败次数、429、5xx 和 account failure 设置不同冷却时长。
 
 **深入展开：**
-provider 连续失败达到阈值或遇到 429/5xx 会进入 cooldown。credential 的 account failure 会至少冷却 30 分钟，因为余额或账号权限问题通常不是短时间恢复。`route_attempts` 会跳过 provider cooldown；credential selection 会过滤 credential cooldown。这个设计是轻量熔断，不引入复杂 circuit breaker。
+Provider 只会在 transport、upstream protocol、429、5xx 或明确 account/config 等可熔断 failure kind 上进入 cooldown；普通非重试型 4xx 虽会计入 failure 统计，但不会仅凭连续次数熔断整个 Provider。credential 的 account failure 会使用更长冷却，因为余额或账号权限问题通常不是短时间恢复。`route_attempts` 会跳过 provider cooldown；credential selection 会过滤 credential cooldown。这个设计是轻量熔断，不引入复杂 circuit breaker。
 
 **代码/文档依据：**
 - `src/provider_status.rs`
@@ -1479,7 +1485,7 @@ provider 连续失败达到阈值或遇到 429/5xx 会进入 cooldown。credenti
 面试官想看你是否能把技术错误转成可操作诊断。
 
 **简短回答：**
-余额不足不是普通上游失败，它需要充值或切换账号。Runvara 会优先识别 `insufficient_balance`、英文变体和中文 “余额不足”，标记 `rechargeRequired=true`，并展示 `代充值` badge。
+余额不足不是普通上游失败，它需要充值或切换账号。Runvara 会优先识别 `insufficient_balance`、英文变体和中文“余额不足”，标记 `rechargeRequired=true`，并展示 `等待充值` badge。
 
 **深入展开：**
 如果把余额不足当成普通 500，系统可能不断重试或错误 fallback，用户也不知道该充值。`provider_account_issue` 在 generic account error 前优先检测余额变体，`provider_health_row` 会将它显示成 recharge required。credential health 也会记录账号级问题，便于切账号。
@@ -1492,10 +1498,10 @@ provider 连续失败达到阈值或遇到 429/5xx 会进入 cooldown。credenti
 **可能追问：**
 - 为什么 402 有时表现为 500？
 - rechargeRequired 和 auth error 有何区别？
-- 代充值标记是否影响路由？
+- “等待充值”标记是否影响路由？
 
 **回答注意：**
-不要把 “代充值” 讲成支付系统。当前是诊断和运营标记，不是内置充值平台。
+不要把“等待充值”讲成支付系统。当前是诊断和运营状态，不是内置充值平台。
 
 ### Q63: rechargeRequired=true 的意义是什么？
 
@@ -1579,7 +1585,7 @@ Provider Health 一方面给 Dashboard 展示状态、成功率、错误和建�
 Provider 调用会产生真实成本，所以 quota 必须在调用前检查。Runvara 用估算 usage 先做门禁，请求完成后再记录实际或估算 usage。
 
 **深入展开：**
-如果只在请求后扣减，超额请求已经发生，预算控制没有意义。`check_quotas` 会对 API Key policy 和用户 quota 执行检查；`record_usage` 再更新 quota used。边界是估算可能不准，因此预算是保守治理，不是精确计费系统。
+如果只在请求后扣减，超额请求已经发生，预算控制没有意义。`check_quotas` 会对 API Key policy 和用户 quota 执行检查；`record_usage` 只在确实发送过 upstream attempt 时更新 quota/spend。attempt-level policy/capability/credential/provider-rate 拒绝若进入 recorder 会记零 usage，入口鉴权/结构校验/global rate/stream permit 等更早拒绝可能没有持久行，但都不消耗预算。边界是估算可能不准、并发 check/update 不是 reservation，而且 rolling spend 使用小时桶保守计边界，因此它不是精确计费系统。
 
 **代码/文档依据：**
 - `src/control.rs`
@@ -1629,7 +1635,7 @@ Provider 调用会产生真实成本，所以 quota 必须在调用前检查。R
 网关夹在客户端和 provider 中间，失败时用户首先需要知道是谁、什么时候、调用了哪个模型、走了哪个 provider、花了多久、消耗多少、是否 retry/fallback、错误是什么。Request Logs 把这些信息结构化记录下来。
 
 **深入展开：**
-`record_usage` 写入 usage log，字段包括 identity、api key、team、model、resolved model、provider、protocol、stream、status、tokens、cost、latency、retry_count、fallback_from_provider、client_ip 和 error_message。Dashboard Logs 页面基于这些数据展示调用明细。没有这层日志，排障只能靠散落的服务日志。
+`record_usage` 写入 usage log，字段包括 identity、api key、team、model、resolved model、provider、protocol、stream、status、tokens、cost、`billingMode`、latency、retry_count、fallback_from_provider、client_ip 和 error_message。`billingMode` 区分 `upstream-returned` 与 `local-estimate`；attempt-level preflight 行是零 usage，更早的 ingress 拒绝可能只出现在 route metrics/错误响应而没有 usage row。Dashboard Logs 页面基于这些数据展示调用明细。没有这层日志，排障只能靠散落的服务日志。
 
 **代码/文档依据：**
 - `src/control.rs`
@@ -1644,16 +1650,16 @@ Provider 调用会产生真实成本，所以 quota 必须在调用前检查。R
 **回答注意：**
 不要只说 “有日志”。要说清楚记录字段和排障路径。
 
-### Q69: Trace ID 在请求链路中起什么作用？
+### Q69: Request ID 在请求链路中起什么作用？
 
 **考察点：**
 面试官想看你是否会设计跨层关联。
 
 **简短回答：**
-Trace ID 让客户端请求、后端 tracing、上游调用和 Dashboard 记录可以被关联。Runvara 使用 `x-request-id`，如果没有则由中间件生成，并通过 trace layer 传播。
+Request ID 让客户端响应、Runvara tracing 日志和 Dashboard usage record 可以关联。Runvara 使用 `x-request-id`，没有时由中间件生成并在响应与请求记录中保留。
 
 **深入展开：**
-`routes.rs` 使用 `SetRequestIdLayer` 和 `PropagateRequestIdLayer`，并在 message routing 日志里记录 request id。这个设计的价值是排障时可以从用户提供的 request id 快速定位服务日志和 request log，而不是按时间人工猜。
+`routes.rs` 使用 `SetRequestIdLayer` 和 `PropagateRequestIdLayer`，message handler 与 usage record 保存该值。两条内置协议 adapter 还会把它转发给上游，排障时可以用用户提供的 request ID 定位本服务日志、Dashboard 记录，并在上游支持时继续关联。上游仍可能忽略或替换它；它也没有 span/trace parent 语义，不是完整分布式 trace。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -1665,7 +1671,7 @@ Trace ID 让客户端请求、后端 tracing、上游调用和 Dashboard 记录�
 - 分布式 trace 如何演进？
 
 **回答注意：**
-不要宣称当前已经是完整 OpenTelemetry tracing。当前是 request-id 级链路关联。
+不要宣称当前已经是完整 OpenTelemetry tracing。当前只是 Runvara 范围内的 request-ID 关联。
 
 ### Q70: Prometheus Metrics 当前记录哪些信息？
 
@@ -1696,10 +1702,10 @@ Metrics 记录服务 uptime、route 请求数/成功数/失败数/耗时，以�
 面试官想看你是否理解存活探测和就绪探测的区别。
 
 **简短回答：**
-`livez` 只说明进程活着，适合基础存活检查；`readyz` 需要鉴权，并返回 provider health、storage path 和 providers 等详细信息，适合判断服务是否准备处理真实请求。
+`livez` 只说明进程能响应；`readyz` 需要鉴权并实际读取 auth/control storage，成功后返回 provider health、storage path 和 providers 等诊断信息。存储读失败会返回 not-ready，但某个 Provider 降级不会，所以它是存储 readiness 而不是全 Provider gate。
 
 **深入展开：**
-`health` 在未鉴权时默认只返回 minimal body，除非开启 detailed public health。这样避免公开暴露 provider 和存储信息。`readyz` 记录 metrics 并要求 `authenticate_client`，适合 smoke test 和运维诊断。
+`health` 在未鉴权时默认只返回 minimal body，除非开启 detailed public health。这样避免公开暴露 provider 和存储信息。`readyz` 要求 `authenticate_client` 并检查持久层可读性，适合 smoke/K8s 带 header 的存储 readiness，但不主动探测上游 Provider。
 
 **代码/文档依据：**
 - `src/routes/ops.rs`
@@ -1747,7 +1753,7 @@ Provider Health 来自 control store 的 provider health record，Dashboard view
 tokens 反映模型消耗，cost 反映预算，latency 反映体验。三者一起看，才能判断某个 provider 是慢、贵，还是请求本身上下文太大。
 
 **深入展开：**
-`record_message` 记录 tokens 和 cost estimate 到 metrics，`record_usage` 记录到 request log。请求前基于估算，响应后尽量用 provider header 的真实 usage。Dashboard 可以用这些信息展示费用、延迟和调用趋势。单独看状态码不够，成功但很慢或很贵同样需要治理。
+`record_message` 记录 tokens 和 cost estimate 到 metrics，`record_usage` 记录到 request log。非流式响应和 buffered stream 尽量使用解析出的 Provider usage；普通 live stream 通常仍是请求估算，且当前 duration/success 更接近 stream 接受阶段。Dashboard 的范围趋势由服务端对选定窗口内全部 retained usage 做聚合，不是拿当前日志页拼图；response 还会标记 persisted/metrics-estimate/empty 来源、是否估算以及 retention 是否已达上限。它可以展示运营趋势，但不能把这些值当最终账单或完整生成 SLO。
 
 **代码/文档依据：**
 - `src/routes/client_api.rs`
@@ -1947,7 +1953,7 @@ Runvara 是长连接、流式转发、协议转换和安全边界都比较重的
 Runvara 当前更适合 Docker Compose 或 systemd：部署简单、可复现、维护成本低。Kubernetes 的触发条件是多实例、滚动发布、自动扩缩容、集中配置和团队已有 K8s 运维能力。
 
 **深入展开：**
-本地模型网关的主要价值是把协议、路由、鉴权和 provider 管理跑稳，而不是一开始搭平台。如果用 K8s，用户需要理解 ingress、secret、PVC、health probe、metrics scrape 等一堆额外概念。当前 `docker compose up -d --build` 足够让小团队跑起来。未来如果部署规模上来，可以把 `/livez` 作为 liveness probe，`/readyz` 作为 readiness probe，metrics 接 Prometheus，再把 provider secret 接入 Secret 管理。
+本地模型网关的主要价值是把协议、路由、鉴权和 provider 管理跑稳，而不是一开始搭平台。如果用 K8s，用户需要理解 ingress、secret、PVC、health probe、metrics scrape 等一堆额外概念。当前 `docker compose up -d --build` 足够让小团队跑起来。未来若进入 K8s，`/livez` 可作 liveness；带认证 header 的 `/readyz` 可作存储 readiness，但上游 Provider 是否必须健康应由单独策略决定。
 
 **代码/文档依据：**
 - `docker-compose.yml`
@@ -2003,7 +2009,7 @@ Runvara 的控制面不是公网 SaaS 管理平台，默认更接近本地部署
 - `src/auth.rs`
 - `src/policy.rs`
 - `src/control.rs`
-- `src/database.rs`
+- `src/storage.rs`
 
 **可能追问：**
 - team policy 和 tenant 有什么区别？
@@ -2267,7 +2273,7 @@ Tool Use 是我会重点讲的一块，因为它最能体现协议层复杂度�
 我会先说明 Runvara 的定位：本地大模型路由网关，核心不是某一个模型，而是把不同客户端协议和不同 provider 能力接到一个可治理的本地入口上。项目面向小团队，所以架构重点是稳定、低运维和边界清晰。
 
 **中间怎么展开：**
-第 1-2 分钟讲整体链路：client request、auth/policy、routing、credential pool、provider call、response mapping、usage log/metrics。第 3-5 分钟讲协议层：Anthropic Messages 和 OpenAI Chat 的语义差异、content blocks 到 role messages、stop reason 和 finish reason、SSE event 归一化、max token 字段差异和错误映射。第 6-8 分钟讲稳定性和安全：SSRF Guard、provider URL 校验、metadata IP 禁止、secret redaction、rate limit、quota、failure kind、cooldown、fallback 和 rechargeRequired。第 9-10 分钟讲可观测性和取舍：request logs、trace id、Prometheus metrics、readyz/livez、诊断脚本，以及为什么当前不做 Redis/K8s/OIDC。
+第 1-2 分钟讲整体链路：client request、auth/policy、routing、credential pool、provider call、response mapping、usage log/metrics。第 3-5 分钟讲协议层：Anthropic Messages 和 OpenAI Chat 的语义差异、content blocks 到 role messages、stop reason 和 finish reason、SSE event 归一化、max token 字段差异和错误映射。第 6-8 分钟讲稳定性和安全：Provider URL 字面量地址 guard 与 DNS 边界、secret redaction、rate limit、非事务 quota、failure kind、cooldown、fallback 和 rechargeRequired。第 9-10 分钟讲可观测性和取舍：request ID、进程内 metrics、诊断型 readyz，以及为什么 stream 最终对账和分布式能力仍是后续工作。
 
 **Tool Use 怎么重点讲：**
 在协议层部分我会把 Tool Use 单独拉出来：先讲请求校验，再讲双向转换，最后讲 streaming。请求校验包括工具定义、`tool_choice`、id 唯一性、pending tool result；双向转换包括 Anthropic `tools/tool_use/tool_result` 到 OpenAI `tools/tool_calls/role=tool`，以及 OpenAI `tool_calls/function_call` 回 Anthropic `tool_use`；streaming 则讲 `input_json_delta`、半截 JSON、arguments 早于 name、非对象 arguments 包装和 provider capability matrix。
@@ -2284,7 +2290,7 @@ Tool Use 是我会重点讲的一块，因为它最能体现协议层复杂度�
 我会把题目定义成 “设计一个本地大模型路由网关”。需求分三层：数据面要兼容 Anthropic/OpenAI-compatible、支持 streaming 和 Tool Use；控制面要管理 API Key、provider、credential、quota、logs 和 health；非功能需求是安全、低运维、可诊断、适合小团队。
 
 **中间怎么展开：**
-前 5 分钟讲需求和边界：支持多客户端、多 provider、本地部署、Dashboard 管理，不一开始做 SaaS 多租户和企业 SSO。接下来 8 分钟讲架构：Axum 路由层、auth/policy、rate limiter、client API、provider adapter、credential pool、control state、metrics 和 dashboard。再用 7 分钟讲请求生命周期：入口校验、模型解析、provider selection、credential selection、quota check、SSRF check、upstream call、streaming mapping、usage log、health update、retry/fallback。然后用 5 分钟讲安全和稳定性：CSRF、Origin Guard、IP allowlist、secret redaction、provider URL guard、failure kind、cooldown、insufficient_balance、rechargeRequired。最后 5 分钟讲可观测性、测试和演进。
+前 5 分钟讲需求和边界：支持多客户端、多 provider、本地部署、Dashboard 管理，不一开始做 SaaS 多租户和企业 SSO。接下来 8 分钟讲架构：Axum 路由层、auth/policy、rate limiter、client API、provider adapter、credential pool、control state、metrics 和 dashboard。再用 7 分钟讲请求生命周期：入口校验、模型解析、provider/credential selection、非事务 quota pre-check、字面量 URL guard、upstream call、streaming mapping，以及非流式 usage/health/fallback 闭环。然后讲 CSRF/Origin 写保护、IP allowlist、best-effort redaction、DNS 与 stream 生命周期边界。最后讲 request ID、进程内 metrics、诊断与后续演进。
 
 **Tool Use 怎么重点讲：**
 系统设计里 Tool Use 可以作为最有技术含量的深挖点。我会画出四段：客户端传 `tools/tool_choice`，模型返回 assistant `tool_use`，客户端执行工具并返回 user `tool_result`，模型继续生成。然后说明 Runvara 在这里做三类保证：入口语义校验、跨协议映射、streaming 状态机。重点讲 `validate_tool_turn_references` 的 seen/pending 集合、`disable_parallel_tool_use` 到 `parallel_tool_calls=false`、OpenAI `tool_calls` 到 Anthropic `tool_use`、legacy `function_call`、`input_json_delta`、半截 JSON 和 `_raw_arguments`。

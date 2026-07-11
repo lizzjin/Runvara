@@ -1,5 +1,10 @@
 # GPT Image 2 扩展指导
 
+> **状态：Proposed / Not implemented.** 本文是未来独立图像能力的设计提案，
+> 不是当前 Runvara API、Provider 支持或发布承诺。当前权威范围见
+> [API](API.md) 与 [Architecture](ARCHITECTURE.md)。外部模型名称、能力和价格
+> 会变化；实现前必须重新核对官方资料。最后审阅：2026-07-11。
+
 这份文档用于指导 Runvara 后续接入 `gpt-image-2`。当前 Runvara 的主路径是 Claude Code / VS Code Claude 使用的 Anthropic-compatible `/v1/messages` 文本协议；`gpt-image-2` 应作为独立图像能力扩展，不建议混入 Claude Code 文本中转主链路。
 
 ## README 图示策略
@@ -9,7 +14,9 @@ README 里的项目含义图和快速上手图采用“图像模型出方向稿�
 - `docs/assets/runvara-overview.svg`：解释 Runvara 在 Claude Code、VS Code Claude 和上游 provider 之间的位置。
 - `docs/assets/runvara-quickstart.svg`：解释从 `.env` 到 VS Code Claude 连通 DeepSeek 官方 Anthropic-compatible API 的四步流程。
 
-`README.md` 和 `README.zh-CN.md` 共用同一组 SVG 资产，语言通过完整 Markdown 文件切换，避免中英文页面出现不一致的图示版本。这种方式比直接引用外部生成图片更稳：GitHub 能长期渲染，文字可搜索，后续改模型名、端口、provider 时可以直接编辑 SVG。
+`README.md` 和 `README.zh-CN.md` 当前共用架构 SVG。快速上手 SVG 保留为可选资产，
+但目前未在 README 引用；不能把未引用资产描述成当前入口的一部分。SVG 比外部生成
+图片更易长期渲染和维护，但里面的模型名、命令和状态仍必须随代码复核。
 
 图示维护原则：
 
@@ -36,11 +43,11 @@ Create a clean GitHub README quick-start infographic for a developer tool named 
 - Image API：适合单次 prompt 生成或编辑一张/多张图片。
 - Responses API：适合多轮、可编辑、上下文式图片体验。
 
-参考：
+实现前重新核对以下官方资料：
 
-- OpenAI GPT Image 2 model page: https://developers.openai.com/api/docs/models/gpt-image-2
-- OpenAI image generation guide: https://developers.openai.com/api/docs/guides/image-generation
-- OpenAI Images API reference: https://developers.openai.com/api/reference/resources/images
+- [OpenAI GPT Image 2 model page](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [OpenAI image generation guide](https://developers.openai.com/api/docs/guides/image-generation)
+- [OpenAI Images API reference](https://developers.openai.com/api/reference/resources/images)
 
 ## 对 Runvara 的建议定位
 
