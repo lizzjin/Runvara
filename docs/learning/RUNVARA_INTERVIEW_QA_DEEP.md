@@ -911,10 +911,10 @@ OpenAI-compatible adapter 会先发送非流式请求，await 完整响应、提
 面试官想看你是否关注网关的治理能力，而不只是请求响应。
 
 **简短回答：**
-Runvara 会先基于请求估算 usage，用于 quota 检查；非流式上游返回后如果本地 response header 带有解析出的 usage，会用它覆盖估算并写入 metrics 和 usage log。日志用 `billingMode=upstream-returned` 和 `local-estimate` 明确 provenance。普通 live stream 当前通常仍使用请求估算；`buffer_stream_text=true` 会先完成非流式上游并把 reported usage 放进内部 response header，因此能覆盖估算，但仍不代表精确账单或下游交付对账。
+Runvara 会先基于请求估算 usage，用于 quota 检查；非流式上游返回后如果本地 response header 带有解析出的 usage，会用它覆盖估算并写入 metrics 和 usage log。日志用 `billingMode=upstream-returned` 和 `local-estimate` 明确 provenance。live stream 的共享生命周期会合并可识别的 Anthropic/OpenAI usage 事件并在 body 终态结算；没有 usage 事件时仍保留请求估算。`buffer_stream_text=true` 也能使用完整非流式响应的 usage。持久账本的租约 worker 会收敛进程丢失留下的行，但只能标记 `unreconciled`，不能伪造 Provider usage，因此这些路径仍不代表 Provider 账单。
 
 **深入展开：**
-`estimate_usage` 用完整请求 JSON 的字符数粗略估算 input tokens，并用 `max_tokens` 估算 output tokens。非流式调用以及 buffered stream 在上游完整返回后，`pricing::usage_from_headers` 如果能解析到 Provider usage，就替换 estimate。普通 live stream 的最终 usage 尚未回灌；即使有 returned usage，本地价格表也决定这些值仍不能当账单。只有 `last_sent` 存在，也就是实际发起过上游尝试，才会增加 quota 和 spend ledger；attempt-level preflight 进入 recorder 时是零 usage，早期 ingress 拒绝可能没有持久行，两者都不收费。
+`estimate_usage` 用完整请求 JSON 的字符数粗略估算 input tokens，并用请求上限或 OpenAI 缺省估算值计算 output tokens。非流式与 buffered stream 通过内部 usage header 替换 estimate；live stream 则通过 `StreamLifecycle` 合并 usage 维度并在 finalizer 中替换。即使有 returned usage，本地价格表也决定成本仍不能当账单。只有 `last_sent` 存在，也就是实际发起过上游尝试，才会增加 quota 和 spend ledger；attempt-level preflight 进入 recorder 时是零 usage，早期 ingress 拒绝可能没有持久行，两者都不收费。
 
 **代码/文档依据：**
 - `src/routes/client_api.rs`
@@ -1659,7 +1659,7 @@ Provider 调用会产生真实成本，所以 quota 必须在调用前检查。R
 Request ID 让客户端响应、Runvara tracing 日志和 Dashboard usage record 可以关联。Runvara 使用 `x-request-id`，没有时由中间件生成并在响应与请求记录中保留。
 
 **深入展开：**
-`routes.rs` 使用 `SetRequestIdLayer` 和 `PropagateRequestIdLayer`，message handler 与 usage record 保存该值。两条内置协议 adapter 还会把它转发给上游，排障时可以用用户提供的 request ID 定位本服务日志、Dashboard 记录，并在上游支持时继续关联。上游仍可能忽略或替换它；它也没有 span/trace parent 语义，不是完整分布式 trace。
+`routes.rs` 使用 `SetRequestIdLayer` 和 `PropagateRequestIdLayer`，message handler 与 usage record 保存该值。两条内置协议 adapter 还会把它转发给上游，排障时可以用用户提供的 request ID 定位本服务日志、Dashboard 记录，并在上游支持时继续关联。上游仍可能忽略或替换它；它也没有 span/trace parent 语义，不是完整分布式 trace。Request ID 不提供重试安全；真正的 at-most-once Provider 调用边界是租户作用域的 `Idempotency-Key` 哈希声明。
 
 **代码/文档依据：**
 - `src/routes.rs`
@@ -1702,10 +1702,10 @@ Metrics 记录服务 uptime、route 请求数/成功数/失败数/耗时，以�
 面试官想看你是否理解存活探测和就绪探测的区别。
 
 **简短回答：**
-`livez` 只说明进程能响应；`readyz` 需要鉴权并实际读取 auth/control storage，成功后返回 provider health、storage path 和 providers 等诊断信息。存储读失败会返回 not-ready，但某个 Provider 降级不会，所以它是存储 readiness 而不是全 Provider gate。
+`livez` 只说明进程能响应；`readyz` 需要鉴权并实际读取 auth/control storage，同时检查规范化请求/尝试账本可达，成功后返回 provider health、storage path 和 providers 等诊断信息。存储读失败会返回 not-ready，但某个 Provider 降级不会，所以它是存储 readiness 而不是全 Provider gate。
 
 **深入展开：**
-`health` 在未鉴权时默认只返回 minimal body，除非开启 detailed public health。这样避免公开暴露 provider 和存储信息。`readyz` 要求 `authenticate_client` 并检查持久层可读性，适合 smoke/K8s 带 header 的存储 readiness，但不主动探测上游 Provider。
+`health` 在未鉴权时默认只返回 minimal body，除非开启 detailed public health。这样避免公开暴露 provider 和存储信息。`readyz` 要求 `authenticate_client`，检查 auth/control 可读性并执行账本连接查询，适合 smoke/K8s 带 header 的存储 readiness，但不主动探测上游 Provider。
 
 **代码/文档依据：**
 - `src/routes/ops.rs`
@@ -1753,7 +1753,7 @@ Provider Health 来自 control store 的 provider health record，Dashboard view
 tokens 反映模型消耗，cost 反映预算，latency 反映体验。三者一起看，才能判断某个 provider 是慢、贵，还是请求本身上下文太大。
 
 **深入展开：**
-`record_message` 记录 tokens 和 cost estimate 到 metrics，`record_usage` 记录到 request log。非流式响应和 buffered stream 尽量使用解析出的 Provider usage；普通 live stream 通常仍是请求估算，且当前 duration/success 更接近 stream 接受阶段。Dashboard 的范围趋势由服务端对选定窗口内全部 retained usage 做聚合，不是拿当前日志页拼图；response 还会标记 persisted/metrics-estimate/empty 来源、是否估算以及 retention 是否已达上限。它可以展示运营趋势，但不能把这些值当最终账单或完整生成 SLO。
+`record_message` 记录 tokens 和 cost estimate 到 metrics，`record_usage` 记录到 request log。非流式、buffered stream 和包含可识别 usage 事件的 live stream 会使用 Provider usage；所有 live stream 的 duration/success 都在 body 完成、失败或取消时由共享 finalizer 结算。Dashboard 的范围趋势由服务端对选定窗口内全部 retained usage 做聚合，不是拿当前日志页拼图；response 还会标记 persisted/metrics-estimate/empty 来源、是否估算以及 retention 是否已达上限。它可以展示运营趋势，但不能把这些值当最终账单或完整生成 SLO。
 
 **代码/文档依据：**
 - `src/routes/client_api.rs`

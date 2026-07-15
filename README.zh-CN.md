@@ -4,10 +4,15 @@
 
 [English](README.md) | **简体中文**
 
-Runvara 是面向 Claude Code、VS Code Claude 和 API 客户端的自托管
-Anthropic-compatible 模型网关。它用一个本地 `/v1/messages` 入口连接
-Anthropic-compatible 与 OpenAI-compatible Provider，并提供路由、Tool Use
-转换、鉴权、配额、请求日志、Provider 健康和轻量小团队控制台。
+Runvara 是面向 Claude Code、VS Code Claude、OpenAI-compatible SDK 和 API
+客户端的自托管多协议模型网关。`/v1/messages` 与
+`/v1/chat/completions` 入口复用同一套鉴权、策略、配额、路由、用量结算和
+Provider 健康链路，并连接 Anthropic-compatible 与 OpenAI-compatible
+Provider。
+
+项目的目标方向已调整为具备完整治理能力的多协议企业级模型网关。当前版本尚未
+达到这一目标；目标架构、迁移工作流和基于证据的发布门槛见
+[企业级网关路线图](docs/ENTERPRISE_ROADMAP.md)。
 
 ![Runvara architecture overview](docs/assets/runvara-overview.svg)
 
@@ -16,7 +21,8 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
 
 ## 已实现能力
 
-- Anthropic-compatible `POST /v1/messages` 和 `GET /v1/models`。
+- Anthropic-compatible `POST /v1/messages`、有明确兼容范围的 OpenAI-compatible
+  `POST /v1/chat/completions`，以及 `GET /v1/models`。
 - Anthropic 直通与 OpenAI Chat Completions 协议转换。
 - Anthropic 风格 SSE 转换，包括常见 Tool Use delta。
 - 模型别名、`provider:model`、精确模型和前缀路由。
@@ -24,37 +30,48 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
   控制台 API Key。
 - Provider 凭证池、冷却状态、有边界的 fallback、诊断、请求日志和
   Prometheus metrics。
-- 覆盖用户、密钥、团队、配额、Provider、模型、别名、日志、健康、审计和
-  脱敏诊断快照的 React 控制台。
-- JSON 文件或 PostgreSQL 控制面存储，以及 Docker Compose 和 systemd 模板。
+- 覆盖用户、密钥、团队、配额、Provider、模型、别名、日志、健康、审计、
+  企业请求/尝试账本和脱敏诊断快照的 React 控制台。
+- 带租户外键、SQLx 连接池、rustls、事务预算预留/结算和不可变证据流水的 PostgreSQL 请求/尝试账本；
+  兼容期 JSON 文件/PostgreSQL 控制面存储；Docker Compose 和 systemd 模板。
 
 仓库内存在 Provider 配置，不等于已通过真实上游验证。带日期的验证结果应记录在
 [Provider 兼容矩阵](docs/PROVIDER_MATRIX.md)。
 
 ## 技术核心
 
-- **协议边界：** 对外保持 Anthropic Messages 契约，内部通过聚焦的 adapter
-  直通 Anthropic-compatible 流量，或转换为 OpenAI Chat Completions，包括有边界
-  的 SSE 与常见 Tool Use 事件转换。
+- **协议边界：** Anthropic Messages 与当前范围内的 OpenAI Chat Completions
+  都先解析为强类型、协议中立的 Exchange IR，再进入共享治理链路；edge adapter
+  会保留已支持的文本、角色、function tools、Tool Use ID、结束原因、usage 与有边界
+  的 SSE，对未支持字段显式拒绝，不做静默丢弃。
 - **确定性路由：** 按明确顺序解析 `provider:model`、alias、精确模型、模型前缀和
   默认 Provider；存在可用替代项时跳过冷却中的 Provider，并且只在模型可接收且
   出现 transport、protocol、429 或 5xx 等可重试失败时执行有边界的 fallback。
 - **按上游尝试治理：** 鉴权及全局/身份/IP 限流先于路由执行；随后在每次上游
   尝试前检查 API Key 策略、用户配额、API Key/团队费用窗口、Provider 凭证、
   capability gate 以及 Provider/模型限流。preflight 拒绝不会扣量，只有确实发出
-  的上游尝试才会记录配额或费用消耗。
+  的上游尝试才会记录配额或费用消耗；PostgreSQL 模式还会在出站前原子预留租户预算，
+  并在终态按真实证据结算或释放。
+- **重试与崩溃安全：** 可选的租户级 `Idempotency-Key` 声明会阻止重复 Provider
+  调用；请求/尝试租约会贯穿完整 stream 交付。失去所有者且租约过期的记录会收敛
+  为不计费的 `unreconciled` 证据，不会永久停留在进行中。
 - **防御式传输与流式处理：** 禁止上游重定向，对请求、响应、SSE、idle time 和
   并发设置边界；远程 Provider 默认要求 HTTPS；live stream permit 会一直持有到
   response body 完成或被丢弃。
 - **单一控制面事实源：** 环境变量/TOML 基础配置与持久化控制台 override 合成
-  实际运行配置；JSON 文件与 PostgreSQL 保存相同的 auth/control 逻辑文档，控制台
-  只是后端客户端，不是第二套路由事实源。
+  实际运行配置；迁移期内 JSON 文件与 PostgreSQL 仍保存相同的 auth/control 逻辑
+  文档，同时规范化 PostgreSQL 账本会在上游调用前记录带租户作用域的请求与
+  Provider 尝试。控制台只是后端客户端，不是第二套路由事实源。
 - **保留证据来源的可观测性：** request ID、保留期内 usage log、Prometheus
-  进程指标、健康/冷却状态和控制台聚合，会区分上游返回 usage 与本地估算。
+  进程指标、健康/冷却状态和控制台聚合，会区分上游返回 usage 与本地估算；流式
+  日志与健康状态在 response body 完成、失败或被丢弃时结算，而不是在初始 HTTP
+  200 建立时提前判定成功。
 
-这些机制已经实现，但不代表 Runvara 是精确计费系统或分布式硬配额服务。
+这些机制已经实现；PostgreSQL 租户预算已是分布式硬准入控制，但 Provider 最终账单
+仍是计费权威，兼容期用户配额/费用窗口也仍是 preflight guard，而非精确计费系统。
 Provider 配置不等于真实上游验证；live stream 也可能在 HTTP 200 后失败，且无法
-跨 Provider 重放。详见[技术核心及其边界](docs/ARCHITECTURE.md#technical-core)。
+跨 Provider 重放。当前幂等声明会阻止第二次调用，但不会重放首次响应。详见
+[技术核心及其边界](docs/ARCHITECTURE.md#technical-core)。
 
 ## 使用 Docker Compose 快速启动
 
@@ -90,11 +107,16 @@ docker compose ps
 docker compose logs -f runvara
 ```
 
+默认部署会启用 PostgreSQL，这也是当前推荐的企业模式。若部署时明确选择轻量文件模式，
+使用 `docker compose -f docker-compose.yml -f docker-compose.files.yml up -d --build`；
+该模式的 auth/control 数据会落盘，但企业请求与预算账本只保存在进程内存中。
+
 访问：
 
 - 控制台：`http://127.0.0.1:5173`
 - 存活检查：`http://127.0.0.1:17878/livez`
 - Messages API：`http://127.0.0.1:17878/v1/messages`
+- Chat Completions API：`http://127.0.0.1:17878/v1/chat/completions`
 
 使用 `RUNVARA_ADMIN_USERNAME` 和 `RUNVARA_ADMIN_PASSWORD` 登录控制台。
 
@@ -116,6 +138,19 @@ CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash
 VS Code Claude 扩展可把这些变量放入其环境变量设置，然后重新加载扩展或窗口。
 模型值必须与 Runvara 的实际模型目录一致。
 
+## 连接 OpenAI-Compatible SDK
+
+把支持自定义 base URL 的 SDK 指向 Runvara，并使用相同的客户端密钥：
+
+```env
+OPENAI_BASE_URL=http://127.0.0.1:17878/v1
+OPENAI_API_KEY=replace-with-the-same-local-router-token
+OPENAI_MODEL=deepseek-v4-flash
+```
+
+当前 Chat Completions 是有文档边界的文本/function-tool 兼容范围，不代表完整
+OpenAI API 等价。应用接入前请阅读 [API 参考](docs/API.md#chat-completions)。
+
 ## 验证
 
 ```bash
@@ -136,6 +171,15 @@ curl -fsS \
     "max_tokens":96,
     "messages":[{"role":"user","content":"Reply exactly: OK"}]
   }'
+
+curl -fsS \
+  -H "Authorization: Bearer $RUNVARA_AUTH_TOKEN" \
+  -H 'content-type: application/json' \
+  http://127.0.0.1:17878/v1/chat/completions \
+  -d '{
+    "model":"deepseek-v4-flash",
+    "messages":[{"role":"user","content":"Reply exactly: OK"}]
+  }'
 ```
 
 Messages 请求会产生真实上游费用。不生成文本的本地检查是：
@@ -154,9 +198,12 @@ scripts/smoke-test.sh
 
 ## 重要运行限制
 
-- `/readyz` 是带鉴权的诊断接口；上游降级时它目前不会自动返回失败。
+- `/readyz` 是带鉴权的诊断接口，会检查 auth、control 和关系型账本存储；上游
+  降级时它目前不会自动返回失败。
 - Stream 可能在初始 HTTP 200 之后通过 SSE `event: error` 失败。响应头发出后，
-  live stream 完成态、最终 usage/cost、Provider 健康和 fallback 尚未完全闭环；
+  完成态、耗时、指标和 Provider 健康会在 body 完成、失败或被丢弃时统一结算；
+  可识别的 Provider usage 终态事件会替换本地估算，没有该事件的 stream 仍保留
+  估算值，并且下游响应头发出后不能 fallback。
   buffered 兼容模式会先完成上游，但代价是延迟首字节。
 - 限流、并发 stream permit 和控制台 session 都是进程内状态；stream permit 会
   持有到响应 body 完成或释放。配额检查不是事务式预留，并发请求可能超过很紧的

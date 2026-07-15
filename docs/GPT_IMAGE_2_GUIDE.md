@@ -5,7 +5,10 @@
 > [API](API.md) 与 [Architecture](ARCHITECTURE.md)。外部模型名称、能力和价格
 > 会变化；实现前必须重新核对官方资料。最后审阅：2026-07-11。
 
-这份文档用于指导 Runvara 后续接入 `gpt-image-2`。当前 Runvara 的主路径是 Claude Code / VS Code Claude 使用的 Anthropic-compatible `/v1/messages` 文本协议；`gpt-image-2` 应作为独立图像能力扩展，不建议混入 Claude Code 文本中转主链路。
+这份文档用于指导 Runvara 后续接入 `gpt-image-2`。当前 Runvara 的数据面是
+Anthropic-compatible `/v1/messages` 与有明确范围的 OpenAI-compatible
+`/v1/chat/completions` 文本协议；`gpt-image-2` 应作为独立图像能力扩展，不应
+混入现有文本生成链路。
 
 ## README 图示策略
 
@@ -27,7 +30,7 @@ README 里的项目含义图和快速上手图采用“图像模型出方向稿�
 可用于 `gpt-image-2` 重新生成方向稿的 prompt：
 
 ```text
-Create a clean technical README architecture infographic for an open source developer tool called "Runvara". Wide 16:9 aspect ratio, modern GitHub README style, crisp readable labels, generous spacing. Visual concept: VS Code Claude / Claude Code on the left sends Anthropic Messages API to a local gateway box labeled "Runvara" in the center, then Runvara routes to configured providers on the right: DeepSeek v4 flash, Anthropic, OpenAI-compatible, OpenRouter, Ollama / Custom. Show only implemented ideas as small badges: Local token auth, Model routing, Protocol transform, Streaming SSE, DeepSeek official Anthropic, Health and metrics. Use a professional light theme with white background, deep teal and graphite accents. Avoid clutter, no fake UI screenshots, no tiny unreadable text, no unsupported fallback claim, no external logos.
+Create a clean technical README architecture infographic for an open source developer tool called "Runvara". Wide 16:9 aspect ratio, modern GitHub README style, crisp readable labels, generous spacing. Visual concept: Claude Code / VS Code Claude and OpenAI-compatible SDKs on the left send Anthropic Messages or Chat Completions to a local gateway box labeled "Runvara" in the center, then Runvara routes to configured providers on the right: DeepSeek v4 flash, Anthropic, OpenAI-compatible, OpenRouter, Ollama / Custom. Show only implemented ideas as small badges: Client API key, Typed Exchange IR, Model routing, Protocol transform, Terminal streaming SSE, Health and metrics. Use a professional light theme with white background, deep teal and graphite accents. Avoid clutter, no fake UI screenshots, no tiny unreadable text, no unsupported fallback claim, no external logos.
 ```
 
 ```text
