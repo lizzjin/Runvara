@@ -93,7 +93,7 @@ Provider 配置不等于真实上游验证；live stream 也可能在 HTTP 200 �
 | 只用本地 Qwen | `local_qwen` | 本地 runtime 无鉴权时不需要 | 需要 TOML `local_qwen` provider 与 `QWEN_LOCAL_BASE_URL`，所有 DeepSeek 变量均可省略 |
 | Qwen + DeepSeek | 显式选择其一 | DeepSeek Key + 可达的 Qwen runtime | QuantPilot 推荐拓扑：Qwen 默认，DeepSeek 使用 `deepseek:<model>` 显式选择 |
 
-上游 Provider Key 只保存在 Runvara。应用使用独立的 legacy router token，或优先使用控制台签发、带 provider/model scope 的客户端 API Key。完整 Qwen-only 和组合 TOML 示例见[配置：Provider 拓扑配方](docs/CONFIGURATION.md#provider-topology-recipes)。
+上游 Provider Key 只保存在 Runvara。应用使用独立的 legacy router token，或优先使用控制台签发、带 provider/model scope 的客户端 API Key。每个接入产品还应使用独立 Key，并由管理员把它固定绑定到唯一的 `organization/project/environment` 账本作用域；客户端请求头只能断言该绑定，不能切换到其他项目。完整 Qwen-only 和组合 TOML 示例见[配置：Provider 拓扑配方](docs/CONFIGURATION.md#provider-topology-recipes)，隔离配置见 [API Key tenant binding](docs/CONFIGURATION.md#api-key-tenant-binding)。
 
 ```bash
 cp deploy/docker/runvara.env.example .env
@@ -122,7 +122,8 @@ QuantPilot 长期接入时，在 Runvara 配置 `local_qwen` 与 `deepseek`，�
 启动并查看：
 
 ```bash
-docker compose up -d --build
+scripts/build-container.sh
+docker compose up -d
 docker compose ps
 docker compose logs -f runvara
 ```

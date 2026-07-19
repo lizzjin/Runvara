@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
 ARG RUST_VERSION=1.96.0
+ARG RUNVARA_SOURCE_REVISION=unknown
+ARG RUNVARA_SOURCE_STATE=unknown
 FROM rust:${RUST_VERSION}-bookworm AS builder
 
 WORKDIR /app
@@ -21,6 +23,15 @@ RUN mkdir -p /data /config \
   && chown -R runvara:runvara /data /config
 
 COPY --from=builder /app/target/release/runvara /usr/local/bin/runvara
+
+# Keep source metadata after dependency and binary layers so a new commit label
+# does not invalidate the slow apt or Rust build cache.
+ARG RUNVARA_SOURCE_REVISION
+ARG RUNVARA_SOURCE_STATE
+LABEL org.opencontainers.image.title="Runvara" \
+      org.opencontainers.image.source="https://github.com/tiammomo/Runvara" \
+      org.opencontainers.image.revision="$RUNVARA_SOURCE_REVISION" \
+      io.runvara.source-state="$RUNVARA_SOURCE_STATE"
 
 USER runvara
 

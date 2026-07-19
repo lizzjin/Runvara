@@ -20,6 +20,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        RUNVARA_SOURCE_REVISION: ${RUNVARA_SOURCE_REVISION:-unknown}
+        RUNVARA_SOURCE_STATE: ${RUNVARA_SOURCE_STATE:-unknown}
     image: runvara:local
     init: true
     read_only: true
