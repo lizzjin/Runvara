@@ -274,6 +274,9 @@ Cookie、浏览器会话或订阅，这些也不是 OpenAI API 凭证。数据�
 3. HTTPS 后设置 `RUNVARA_ADMIN_COOKIE_SECURE=1`。
 4. 像保护凭证一样保护 PostgreSQL/JSON 状态和 CLI 备份。
 
+持久化 usage、ledger 和 Provider 健康错误只保留错误类别；Provider 原始正文、
+Tool 校验路径、请求值、URL 与存储诊断会在进入持久化遥测前被剔除。
+
 威胁边界和安全报告方式见 [SECURITY.md](SECURITY.md)。
 
 ## 本地开发
