@@ -159,8 +159,29 @@ still use the compatibility path or remain open.
 ## Backup
 
 The dashboard's CSRF-protected `POST /admin/backup` download is a redacted
-diagnostic snapshot, creates an audit event, and is not a restore artifact. Use
-the CLI for a restorable application backup:
+diagnostic snapshot, creates an audit event, and is not a restore artifact.
+
+For the normal PostgreSQL Compose deployment, use the host-side backup helper.
+It creates an atomic `0600` archive containing a portable custom-format
+`pg_dump`, `config.toml`, the Compose environment file, checksums, and source
+provenance. The environment file contains plaintext credentials, so the entire
+archive is credential material and must never be committed or copied to
+unencrypted public storage.
+
+```bash
+./scripts/backup-compose.sh create
+./scripts/backup-compose.sh verify backups/runvara-<UTC>.tar.gz
+./scripts/backup-compose.sh drill backups/runvara-<UTC>.tar.gz
+```
+
+`drill` restores the dump into a new, unpublished, temporary PostgreSQL
+container, checks the required `auth` and `control` namespaces, and removes the
+container. It never connects `runvara` to the temporary database and never
+writes to the production database. Completed archives older than
+`RUNVARA_BACKUP_RETENTION_DAYS` (14 by default) are pruned only from the
+configured backup directory.
+
+The CLI remains the restorable export for file-backend deployments:
 
 ```bash
 docker compose exec runvara \
@@ -201,6 +222,10 @@ docker compose exec -T postgres psql -U runvara runvara < runvara.sql
 The Compose project has `name: runvara`; a physical volume backup therefore
 uses volume `runvara_runvara-postgres`. Prefer `pg_dump` for portable
 restore instead of copying a live database directory.
+
+The Compose services use bounded `json-file` logging: 10 MiB per file and five
+files by default. Override `RUNVARA_LOG_MAX_SIZE` or
+`RUNVARA_LOG_MAX_FILES` only after checking host disk capacity.
 
 ## Reload And Restart
 
