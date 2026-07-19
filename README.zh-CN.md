@@ -27,6 +27,8 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
 - Anthropic 直通与 OpenAI Chat Completions 协议转换。
 - Anthropic 风格 SSE 转换，包括常见 Tool Use delta、按工具完整 JSON Schema
   响应校验和 Tool 语义终态观测。
+- 可选的单次非流式严格 Schema 参数修复；提示脱敏、每次尝试独立入账，并合并请求级
+  Token/费用证据。
 - 模型别名、`provider:model`、精确模型和前缀路由。
 - 本地 legacy token，以及带模型/Provider/IP、滚动费用窗口和用户配额策略的
   控制台 API Key。
@@ -71,6 +73,7 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
   200 建立时提前判定成功。
   流式首语义延迟从首个非空正文或 Tool Call 事件计时；非流式完整生命周期延迟不会
   被误标为 TTFT。
+  有界 `x-runvara-traffic-class` 可区分业务、合成和诊断调用，不保留请求正文。
 
 这些机制已经实现；PostgreSQL 租户预算已是分布式硬准入控制，但 Provider 最终账单
 仍是计费权威，兼容期用户配额/费用窗口也仍是 preflight guard，而非精确计费系统。

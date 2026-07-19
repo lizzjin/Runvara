@@ -47,6 +47,7 @@ status="$(
     -o "$body_file" \
     -w '%{http_code}' \
     -H "x-api-key: $RUNVARA_AUTH_TOKEN" \
+    -H 'x-runvara-traffic-class: synthetic' \
     -H 'Content-Type: application/json' \
     "$(base_url)/v1/messages" \
     -d "$(printf '{"model":"%s","max_tokens":256,"messages":[{"role":"user","content":"用一句话回复：Runvara upstream OK。"}]}' "$model")"
