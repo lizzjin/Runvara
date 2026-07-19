@@ -25,7 +25,8 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
   `POST /v1/messages/count_tokens`、有明确兼容范围的 OpenAI-compatible
   `POST /v1/chat/completions`，以及 `GET /v1/models`。
 - Anthropic 直通与 OpenAI Chat Completions 协议转换。
-- Anthropic 风格 SSE 转换，包括常见 Tool Use delta。
+- Anthropic 风格 SSE 转换，包括常见 Tool Use delta、按工具完整 JSON Schema
+  响应校验和 Tool 语义终态观测。
 - 模型别名、`provider:model`、精确模型和前缀路由。
 - 本地 legacy token，以及带模型/Provider/IP、滚动费用窗口和用户配额策略的
   控制台 API Key。
@@ -68,6 +69,8 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
   进程指标、健康/冷却状态和控制台聚合，会区分上游返回 usage 与本地估算；流式
   日志与健康状态在 response body 完成、失败或被丢弃时结算，而不是在初始 HTTP
   200 建立时提前判定成功。
+  流式首语义延迟从首个非空正文或 Tool Call 事件计时；非流式完整生命周期延迟不会
+  被误标为 TTFT。
 
 这些机制已经实现；PostgreSQL 租户预算已是分布式硬准入控制，但 Provider 最终账单
 仍是计费权威，兼容期用户配额/费用窗口也仍是 preflight guard，而非精确计费系统。
