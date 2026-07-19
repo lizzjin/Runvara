@@ -21,7 +21,8 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
 
 ## 已实现能力
 
-- Anthropic-compatible `POST /v1/messages`、有明确兼容范围的 OpenAI-compatible
+- Anthropic-compatible `POST /v1/messages`、按 Provider 显式开启的精确
+  `POST /v1/messages/count_tokens`、有明确兼容范围的 OpenAI-compatible
   `POST /v1/chat/completions`，以及 `GET /v1/models`。
 - Anthropic 直通与 OpenAI Chat Completions 协议转换。
 - Anthropic 风格 SSE 转换，包括常见 Tool Use delta。
@@ -31,7 +32,8 @@ Runvara 面向单台可信主机或小型可信网络，不是公网多租户模
 - Provider 凭证池、冷却状态、有边界的 fallback、诊断、请求日志和
   Prometheus metrics。
 - 覆盖用户、密钥、团队、配额、Provider、模型、别名、日志、健康、审计、
-  企业请求/尝试账本和脱敏诊断快照的 React 控制台。
+  企业请求/尝试账本和脱敏诊断快照的 React 控制台；官方 DeepSeek provider
+  支持管理员实时只读查询线上余额，充值和账单仍以 DeepSeek 控制台为准。
 - 带租户外键、SQLx 连接池、rustls、事务预算预留/结算和不可变证据流水的 PostgreSQL 请求/尝试账本；
   兼容期 JSON 文件/PostgreSQL 控制面存储；Docker Compose 和 systemd 模板。
 
@@ -77,11 +79,21 @@ Provider 配置不等于真实上游验证；live stream 也可能在 HTTP 200 �
 
 前置条件：Docker Compose v2，以及至少一个 Provider 的有效凭证。
 
+复制模板前先选择上游拓扑：
+
+| 拓扑 | 默认 Provider | 必需上游凭据 | 说明 |
+| --- | --- | --- | --- |
+| 只用 DeepSeek | `deepseek` | `DEEPSEEK_ANTHROPIC_AUTH_TOKEN` | 使用官方 Anthropic-compatible 入口；支持管理员只读查询官方余额 |
+| 只用本地 Qwen | `local_qwen` | 本地 runtime 无鉴权时不需要 | 需要 TOML `local_qwen` provider 与 `QWEN_LOCAL_BASE_URL`，所有 DeepSeek 变量均可省略 |
+| Qwen + DeepSeek | 显式选择其一 | DeepSeek Key + 可达的 Qwen runtime | QuantPilot 推荐拓扑：Qwen 默认，DeepSeek 使用 `deepseek:<model>` 显式选择 |
+
+上游 Provider Key 只保存在 Runvara。应用使用独立的 legacy router token，或优先使用控制台签发、带 provider/model scope 的客户端 API Key。完整 Qwen-only 和组合 TOML 示例见[配置：Provider 拓扑配方](docs/CONFIGURATION.md#provider-topology-recipes)。
+
 ```bash
 cp deploy/docker/runvara.env.example .env
 ```
 
-编辑 `.env`，至少替换：
+如果选择 DeepSeek-only 样例，编辑 `.env` 并替换下面的值；如果选择 Qwen-only，请改用拓扑配方并省略整个 DeepSeek 区块：
 
 ```env
 RUNVARA_AUTH_TOKEN=replace-with-a-long-random-local-token
@@ -99,6 +111,8 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 `deepseek-v4-flash` 是仓库的配置样例，不代表所有账号都能使用该模型。请使用
 Provider 实际为你的账号开放的精确模型 ID。
 
+QuantPilot 长期接入时，在 Runvara 配置 `local_qwen` 与 `deepseek`，签发只允许所需 provider/model 的客户端 Key，QuantPilot 只保存该 Key 为 `RUNVARA_API_KEY`。不要把 `DEEPSEEK_ANTHROPIC_AUTH_TOKEN` 复制到 QuantPilot。
+
 启动并查看：
 
 ```bash
@@ -113,10 +127,10 @@ docker compose logs -f runvara
 
 访问：
 
-- 控制台：`http://127.0.0.1:5173`
-- 存活检查：`http://127.0.0.1:17878/livez`
-- Messages API：`http://127.0.0.1:17878/v1/messages`
-- Chat Completions API：`http://127.0.0.1:17878/v1/chat/completions`
+- 控制台：`http://127.0.0.1:33002`
+- 存活检查：`http://127.0.0.1:38082/livez`
+- Messages API：`http://127.0.0.1:38082/v1/messages`
+- Chat Completions API：`http://127.0.0.1:38082/v1/chat/completions`
 
 使用 `RUNVARA_ADMIN_USERNAME` 和 `RUNVARA_ADMIN_PASSWORD` 登录控制台。
 
@@ -125,7 +139,7 @@ docker compose logs -f runvara
 客户端使用发布的 API 地址和同一个 router token：
 
 ```env
-ANTHROPIC_BASE_URL=http://127.0.0.1:17878
+ANTHROPIC_BASE_URL=http://127.0.0.1:38082
 ANTHROPIC_AUTH_TOKEN=replace-with-the-same-local-router-token
 ANTHROPIC_MODEL=deepseek-v4-flash
 ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-flash
@@ -143,7 +157,7 @@ VS Code Claude 扩展可把这些变量放入其环境变量设置，然后重�
 把支持自定义 base URL 的 SDK 指向 Runvara，并使用相同的客户端密钥：
 
 ```env
-OPENAI_BASE_URL=http://127.0.0.1:17878/v1
+OPENAI_BASE_URL=http://127.0.0.1:38082/v1
 OPENAI_API_KEY=replace-with-the-same-local-router-token
 OPENAI_MODEL=deepseek-v4-flash
 ```
@@ -157,7 +171,7 @@ RUNVARA_OPENAI_API_KEY=replace-with-an-openai-platform-api-key
 RUNVARA_OPENAI_MODEL=gpt-5.5
 ```
 
-不要把客户端的 `OPENAI_BASE_URL=http://127.0.0.1:17878/v1` 复制到 Runvara
+不要把客户端的 `OPENAI_BASE_URL=http://127.0.0.1:38082/v1` 复制到 Runvara
 服务环境中，否则 OpenAI Provider 会指回网关自身。服务端旧版 `OPENAI_*` 名称仍作为
 兼容回退保留，但启动和 `config validate` 会给出迁移 warning。
 
@@ -169,16 +183,16 @@ OpenAI API 等价。应用接入前请阅读 [API 参考](docs/API.md#chat-compl
 ```bash
 source .env
 
-curl -fsS http://127.0.0.1:17878/livez
+curl -fsS http://127.0.0.1:38082/livez
 
 curl -fsS \
   -H "x-api-key: $RUNVARA_AUTH_TOKEN" \
-  http://127.0.0.1:17878/v1/models
+  http://127.0.0.1:38082/v1/models
 
 curl -fsS \
   -H "x-api-key: $RUNVARA_AUTH_TOKEN" \
   -H 'content-type: application/json' \
-  http://127.0.0.1:17878/v1/messages \
+  http://127.0.0.1:38082/v1/messages \
   -d '{
     "model":"deepseek-v4-flash",
     "max_tokens":96,
@@ -188,7 +202,7 @@ curl -fsS \
 curl -fsS \
   -H "Authorization: Bearer $RUNVARA_AUTH_TOKEN" \
   -H 'content-type: application/json' \
-  http://127.0.0.1:17878/v1/chat/completions \
+  http://127.0.0.1:38082/v1/chat/completions \
   -d '{
     "model":"deepseek-v4-flash",
     "messages":[{"role":"user","content":"Reply exactly: OK"}]

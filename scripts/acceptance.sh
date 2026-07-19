@@ -29,7 +29,7 @@ esac
 
 load_env
 
-dashboard_url="${RUNVARA_DASHBOARD_URL:-http://127.0.0.1:5173}"
+dashboard_url="${RUNVARA_DASHBOARD_URL:-http://127.0.0.1:33002}"
 admin_username="${RUNVARA_ADMIN_USERNAME:-admin}"
 admin_password="${RUNVARA_ADMIN_PASSWORD:-}"
 acceptance_model="$(default_upstream_model)"

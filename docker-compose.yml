@@ -32,7 +32,7 @@ services:
     env_file:
       - ${RUNVARA_COMPOSE_ENV_FILE:-.env}
     environment:
-      RUNVARA_BIND: 0.0.0.0:17878
+      RUNVARA_BIND: 0.0.0.0:38082
       RUNVARA_ENV_FILE: /config/.env
       RUNVARA_STATE_DIR: /data
       RUNVARA_CONTROL_STORE: /data/control-plane.json
@@ -44,7 +44,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "${RUNVARA_API_PUBLISH:-127.0.0.1:17878}:17878"
+      - "${RUNVARA_API_PUBLISH:-127.0.0.1:38082}:38082"
     volumes:
       - runvara-data:/data
       - type: bind
@@ -52,7 +52,7 @@ services:
         target: /config/.env
         read_only: true
       # Optional file-based provider config:
-      # - ./config.toml:/config/config.toml:ro
+      - ./config.toml:/config/config.toml:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,9 +75,13 @@ services:
       runvara:
         condition: service_healthy
     ports:
-      - "${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:5173}:8080"
+      - "${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:33002}:8080"
     restart: unless-stopped
 
 volumes:
   runvara-data:
   runvara-postgres:
+
+networks:
+  default:
+    name: ${RUNVARA_NETWORK_NAME:-runvara_default}

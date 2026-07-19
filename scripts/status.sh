@@ -8,7 +8,7 @@ source "$SCRIPT_DIR/lib.sh"
 if [[ -f "$ENV_FILE" ]]; then
   load_env
 else
-  RUNVARA_BIND="${RUNVARA_BIND:-127.0.0.1:17878}"
+  RUNVARA_BIND="${RUNVARA_BIND:-127.0.0.1:38082}"
 fi
 
 log "bind: $RUNVARA_BIND"
