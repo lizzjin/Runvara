@@ -9,7 +9,6 @@ Type=simple
 EnvironmentFile=/etc/runvara/runvara.env
 Environment=RUST_LOG=runvara=info,tower_http=info
 Environment=RUNVARA_STATE_DIR=/var/lib/runvara
-Environment=RUNVARA_CONTROL_STORE=/var/lib/runvara/control-plane.json
 ExecStart=/usr/local/bin/runvara
 WorkingDirectory=/var/lib/runvara
 Restart=always

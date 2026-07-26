@@ -2,13 +2,14 @@ name: runvara
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18.4-alpine
     environment:
       POSTGRES_DB: ${RUNVARA_POSTGRES_DB:-runvara}
       POSTGRES_USER: ${RUNVARA_POSTGRES_USER:-runvara}
       POSTGRES_PASSWORD: ${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}
+      PGDATA: /var/lib/postgresql/18/docker
     volumes:
-      - runvara-postgres:/var/lib/postgresql/data
+      - runvara-postgres-18:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 10s
@@ -26,8 +27,10 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+        RUNVARA_VERSION: ${RUNVARA_VERSION:-0.1.0}
         RUNVARA_SOURCE_REVISION: ${RUNVARA_SOURCE_REVISION:-unknown}
         RUNVARA_SOURCE_STATE: ${RUNVARA_SOURCE_STATE:-unknown}
+        RUNVARA_BUILD_DATE: ${RUNVARA_BUILD_DATE:-unknown}
     image: runvara:local
     init: true
     read_only: true
@@ -43,7 +46,6 @@ services:
       RUNVARA_BIND: 0.0.0.0:38082
       RUNVARA_ENV_FILE: /config/.env
       RUNVARA_STATE_DIR: /data
-      RUNVARA_CONTROL_STORE: /data/control-plane.json
       RUNVARA_CONFIG: /config/config.toml
       RUNVARA_DATABASE_URL: ${RUNVARA_DATABASE_URL:-postgres://${RUNVARA_POSTGRES_USER:-runvara}:${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}@postgres:5432/${RUNVARA_POSTGRES_DB:-runvara}}
       RUNVARA_TRUSTED_PROXIES: ${RUNVARA_TRUSTED_PROXIES:-127.0.0.1,::1,172.16.0.0/12}
@@ -75,6 +77,11 @@ services:
     build:
       context: .
       dockerfile: dashboard/Dockerfile
+      args:
+        RUNVARA_VERSION: ${RUNVARA_VERSION:-0.1.0}
+        RUNVARA_SOURCE_REVISION: ${RUNVARA_SOURCE_REVISION:-unknown}
+        RUNVARA_SOURCE_STATE: ${RUNVARA_SOURCE_STATE:-unknown}
+        RUNVARA_BUILD_DATE: ${RUNVARA_BUILD_DATE:-unknown}
     image: runvara-dashboard:local
     init: true
     read_only: true
@@ -98,7 +105,7 @@ services:
 
 volumes:
   runvara-data:
-  runvara-postgres:
+  runvara-postgres-18:
 
 networks:
   default:

@@ -16,6 +16,13 @@ fi
 
 source_revision="$(git -C "$ROOT_DIR" rev-parse HEAD)"
 source_state="clean"
+runvara_version="$(
+  sed -n 's/^version = "\\([^"]*\\)"/\\1/p' "$ROOT_DIR/Cargo.toml" | head -n 1
+)"
+if [[ -z "$runvara_version" ]]; then
+  die "could not read package version from Cargo.toml"
+fi
+build_date="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [[ -n "$(git -C "$ROOT_DIR" status --porcelain=v1)" ]]; then
   source_state="dirty"
   if [[ "$allow_dirty" != "1" ]]; then
@@ -23,16 +30,21 @@ if [[ -n "$(git -C "$ROOT_DIR" status --porcelain=v1)" ]]; then
   fi
 fi
 
-log "building Runvara image revision=$source_revision source_state=$source_state"
+log "building Runvara images version=$runvara_version revision=$source_revision source_state=$source_state"
+RUNVARA_VERSION="$runvara_version" \
 RUNVARA_SOURCE_REVISION="$source_revision" \
 RUNVARA_SOURCE_STATE="$source_state" \
-  docker compose build runvara
+RUNVARA_BUILD_DATE="$build_date" \
+  docker compose build runvara dashboard
 
-image_id="$(docker image inspect runvara:local --format '{{.Id}}')"
-image_revision="$(docker image inspect runvara:local --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')"
-image_state="$(docker image inspect runvara:local --format '{{index .Config.Labels "io.runvara.source-state"}}')"
+for image in runvara:local runvara-dashboard:local; do
+  image_id="$(docker image inspect "$image" --format '{{.Id}}')"
+  image_revision="$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')"
+  image_state="$(docker image inspect "$image" --format '{{index .Config.Labels "io.runvara.source-state"}}')"
+  image_version="$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')"
 
-if [[ "$image_revision" != "$source_revision" || "$image_state" != "$source_state" ]]; then
-  die "built image provenance labels do not match the requested source state"
-fi
-log "built runvara:local id=$image_id revision=$image_revision source_state=$image_state"
+  if [[ "$image_revision" != "$source_revision" || "$image_state" != "$source_state" || "$image_version" != "$runvara_version" ]]; then
+    die "$image provenance labels do not match the requested source state"
+  fi
+  log "built $image id=$image_id version=$image_version revision=$image_revision source_state=$image_state"
+done

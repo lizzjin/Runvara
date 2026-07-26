@@ -36,21 +36,16 @@ The unit uses:
 StateDirectory=runvara
 WorkingDirectory=/var/lib/runvara
 RUNVARA_STATE_DIR=/var/lib/runvara
-RUNVARA_CONTROL_STORE=/var/lib/runvara/control-plane.json
 ```
 
 systemd creates `/var/lib/runvara` for the dynamic service user with mode
-`0700`. The auth JSON file and control JSON file are writable despite
-`ProtectSystem=strict`. Do not remove `StateDirectory` while using the file
-backend.
-
-When `RUNVARA_DATABASE_URL` is set, auth and control documents are stored in
-PostgreSQL, but the state directory remains useful for backup files and a
-consistent working directory. PostgreSQL access uses SQLx with rustls and
-embedded migrations. For a remote production database, set
+`0700`. Runtime state is stored in mandatory PostgreSQL; the directory remains
+useful for explicit backup files and a consistent working directory.
+PostgreSQL access uses SQLx with rustls and embedded migrations. For a remote
+production database, set
 `RUNVARA_ENTERPRISE_MODE=1`, `RUNVARA_DATABASE_TLS_MODE=verify-full`, and a
 trusted `sslrootcert` in the database URL. Test connectivity and migration
-permissions before switching storage.
+permissions before starting the service.
 
 ## Validate And Observe
 

@@ -173,6 +173,7 @@ validate_env_example() {
       PATH="$PATH" \
       RUNVARA_CONFIG="$CHECK_TMP_DIR/no-config.toml" \
       RUNVARA_ENV_FILE="$sanitized_file" \
+      RUNVARA_DATABASE_URL="postgres://runvara:ci-validation@db.example:5432/runvara" \
       "$ROOT_DIR/target/debug/runvara" config validate
 }
 
@@ -225,6 +226,7 @@ validate_config_examples() {
       PATH="$PATH" \
       RUNVARA_CONFIG="$ROOT_DIR/config.example.toml" \
       RUNVARA_ENV_FILE="$config_env_file" \
+      RUNVARA_DATABASE_URL="postgres://runvara:ci-validation@db.example:5432/runvara" \
       "$ROOT_DIR/target/debug/runvara" config validate
 }
 
