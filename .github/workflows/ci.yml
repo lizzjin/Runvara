@@ -143,7 +143,7 @@ jobs:
 
       - name: Build and start PostgreSQL-backed Runvara
         run: |
-          cargo test --locked postgres_operational_queries_use_database_aggregation
+          cargo test --locked postgres_critical_paths_use_database_transactions_and_aggregation
           cargo build --locked --bin runvara
           export RUNVARA_CONFIG="${RUNNER_TEMP}/runvara-no-config.toml"
           export RUNVARA_ENV_FILE="${RUNNER_TEMP}/runvara-no-env"

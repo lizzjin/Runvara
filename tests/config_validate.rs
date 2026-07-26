@@ -93,6 +93,32 @@ fn cli_deployment_preflight_requires_postgres_and_rejects_unsafe_enterprise_tls(
 }
 
 #[test]
+fn cli_deployment_preflight_enforces_the_enterprise_security_profile() {
+    let missing_security = run_config_validate(&[
+        ("RUNVARA_ENTERPRISE_MODE", "1"),
+        ("RUNVARA_DATABASE_TLS_MODE", "verify-full"),
+    ]);
+    let missing_security_text = output_text(&missing_security);
+    assert!(
+        !missing_security.status.success(),
+        "{missing_security_text}"
+    );
+    assert!(missing_security_text.contains("RUNVARA_ADMIN_COOKIE_SECURE=1"));
+
+    let valid = run_config_validate(&[
+        ("RUNVARA_ENTERPRISE_MODE", "1"),
+        ("RUNVARA_DATABASE_TLS_MODE", "verify-full"),
+        ("RUNVARA_ADMIN_COOKIE_SECURE", "1"),
+        ("RUNVARA_REQUIRE_CONTROL_API_KEYS", "1"),
+        ("RUNVARA_ALLOWED_ORIGINS", "https://runvara.example.com"),
+        ("RUNVARA_TRUSTED_PROXIES", "127.0.0.1"),
+    ]);
+    let valid_text = output_text(&valid);
+    assert!(valid.status.success(), "{valid_text}");
+    assert!(valid_text.contains("Runvara configuration valid"));
+}
+
+#[test]
 fn cli_deployment_preflight_accepts_a_valid_local_environment() {
     let output = run_config_validate(&[]);
     let text = output_text(&output);
