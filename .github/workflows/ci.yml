@@ -100,6 +100,7 @@ jobs:
       CARGO_TERM_COLOR: always
       RUNVARA_BIND: 127.0.0.1:38082
       RUNVARA_DATABASE_URL: postgres://runvara:ci-postgres-password@127.0.0.1:5432/runvara
+      RUNVARA_TEST_DATABASE_URL: postgres://runvara:ci-postgres-password@127.0.0.1:5432/runvara
       RUNVARA_DATABASE_TLS_MODE: disable
       RUNVARA_AUTH_TOKEN: ci-router-token-with-sufficient-entropy
       RUNVARA_ADMIN_USERNAME: admin
@@ -142,6 +143,7 @@ jobs:
 
       - name: Build and start PostgreSQL-backed Runvara
         run: |
+          cargo test --locked postgres_operational_queries_use_database_aggregation
           cargo build --locked --bin runvara
           export RUNVARA_CONFIG="${RUNNER_TEMP}/runvara-no-config.toml"
           export RUNVARA_ENV_FILE="${RUNNER_TEMP}/runvara-no-env"
