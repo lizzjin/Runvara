@@ -1,0 +1,84 @@
+name: runvara-production
+
+# Phase-one production profile: one Runvara instance, an external managed
+# PostgreSQL database, and secret-manager-rendered runtime environment. This
+# file deliberately has no PostgreSQL service and no repository .env mount.
+services:
+  runvara:
+    image: ${RUNVARA_IMAGE:?set a digest-pinned Runvara image}
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    env_file:
+      - path: ${RUNVARA_RUNTIME_ENV_FILE:?set a secret-manager-rendered runtime env file}
+        required: true
+    environment:
+      RUNVARA_BIND: 0.0.0.0:38082
+      RUNVARA_CONFIG: /config/config.toml
+      RUNVARA_ENV_FILE: /run/runvara/no-repository-env
+      RUNVARA_STATE_DIR: /data
+      RUNVARA_ENTERPRISE_MODE: "1"
+      RUNVARA_DATABASE_TLS_MODE: verify-full
+      RUNVARA_REQUIRE_CONTROL_API_KEYS: "1"
+      RUNVARA_ADMIN_COOKIE_SECURE: "1"
+      RUNVARA_LOCAL_EXECUTING_PER_USER: "1"
+      RUNVARA_LOCAL_QUEUED_PER_USER: "2"
+      RUNVARA_LOCAL_QUEUE_GLOBAL: "16"
+      RUNVARA_BATCH_QUEUE_GLOBAL: "16"
+      RUNVARA_LOCAL_OVERFLOW_AFTER_SECONDS: "5"
+      RUNVARA_LOCAL_STRICT_WAIT_SECONDS: "60"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - ${RUNVARA_API_PUBLISH:-127.0.0.1:38082}:38082
+    volumes:
+      - runvara-data:/data
+      - type: bind
+        source: ${RUNVARA_CONFIG_FILE:?set the reviewed non-secret config.toml path}
+        target: /config/config.toml
+        read_only: true
+      - type: bind
+        source: ${RUNVARA_DATABASE_CA_FILE:?set the managed PostgreSQL CA file}
+        target: /run/runvara/database-ca.pem
+        read_only: true
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
+        max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
+
+  dashboard:
+    image: ${RUNVARA_DASHBOARD_IMAGE:?set a digest-pinned dashboard image}
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    depends_on:
+      runvara:
+        condition: service_healthy
+    ports:
+      - ${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:33002}:8080
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
+        max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
+
+volumes:
+  runvara-data:
+
+networks:
+  default:
+    name: ${RUNVARA_NETWORK_NAME:-runvara_default}
+    external: true

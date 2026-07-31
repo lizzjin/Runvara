@@ -110,3 +110,4 @@ volumes:
 networks:
   default:
     name: ${RUNVARA_NETWORK_NAME:-runvara_default}
+    external: true
