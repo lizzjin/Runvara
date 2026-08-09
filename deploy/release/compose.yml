@@ -1,0 +1,114 @@
+name: runvara
+
+# Versioned Small-Team Beta release profile. This file is used from a tagged
+# source checkout and pulls signed GHCR images instead of compiling source.
+services:
+  postgres:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_DB: ${RUNVARA_POSTGRES_DB:-runvara}
+      POSTGRES_USER: ${RUNVARA_POSTGRES_USER:-runvara}
+      POSTGRES_PASSWORD: ${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}
+      PGDATA: /var/lib/postgresql/18/docker
+    volumes:
+      - runvara-postgres-18:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    stop_grace_period: ${RUNVARA_POSTGRES_STOP_GRACE_PERIOD:-1m}
+    logging:
+      driver: json-file
+      options:
+        max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
+        max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
+
+  runvara:
+    image: ${RUNVARA_IMAGE:-ghcr.io/tiammomo/runvara:0.1.0}
+    pull_policy: ${RUNVARA_PULL_POLICY:-missing}
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    env_file:
+      - ${RUNVARA_COMPOSE_ENV_FILE:-../../.env}
+    environment:
+      RUNVARA_BIND: 0.0.0.0:38082
+      RUNVARA_ENV_FILE: /config/.env
+      RUNVARA_STATE_DIR: /data
+      RUNVARA_CONFIG: /config/config.toml
+      RUNVARA_DATABASE_URL: ${RUNVARA_DATABASE_URL:-postgres://${RUNVARA_POSTGRES_USER:-runvara}:${RUNVARA_POSTGRES_PASSWORD:?set RUNVARA_POSTGRES_PASSWORD in .env}@postgres:5432/${RUNVARA_POSTGRES_DB:-runvara}}
+      RUNVARA_TRUSTED_PROXIES: ${RUNVARA_TRUSTED_PROXIES:-127.0.0.1,::1,172.16.0.0/12}
+      RUNVARA_ALLOWED_ORIGINS: ${RUNVARA_ALLOWED_ORIGINS:-}
+      RUST_LOG: ${RUST_LOG:-runvara=info,tower_http=info}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - ${RUNVARA_API_PUBLISH:-127.0.0.1:38082}:38082
+    volumes:
+      - runvara-data:/data
+      - type: bind
+        source: ${RUNVARA_COMPOSE_ENV_FILE:-../../.env}
+        target: /config/.env
+        read_only: true
+      - type: bind
+        source: ${RUNVARA_CONFIG_FILE:-../../config.toml}
+        target: /config/config.toml
+        read_only: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          probe_key="$${RUNVARA_HEALTHCHECK_API_KEY:-$${RUNVARA_AUTH_TOKEN:-}}";
+          test -n "$${probe_key}" &&
+          curl -fsS -H "x-api-key: $${probe_key}" http://127.0.0.1:38082/readyz >/dev/null
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 4
+    restart: unless-stopped
+    stop_grace_period: ${RUNVARA_STOP_GRACE_PERIOD:-11m}
+    logging:
+      driver: json-file
+      options:
+        max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
+        max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
+
+  dashboard:
+    image: ${RUNVARA_DASHBOARD_IMAGE:-ghcr.io/tiammomo/runvara-dashboard:0.1.0}
+    pull_policy: ${RUNVARA_PULL_POLICY:-missing}
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    ports:
+      - ${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:33002}:8080
+    restart: unless-stopped
+    stop_grace_period: ${RUNVARA_DASHBOARD_STOP_GRACE_PERIOD:-30s}
+    logging:
+      driver: json-file
+      options:
+        max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
+        max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
+
+volumes:
+  runvara-data:
+  runvara-postgres-18:
+
+networks:
+  default:
+    name: ${RUNVARA_NETWORK_NAME:-runvara_default}
+    external: true

@@ -31,11 +31,23 @@ if [[ -n "$(git -C "$ROOT_DIR" status --porcelain=v1)" ]]; then
 fi
 
 log "building Runvara images version=$runvara_version revision=$source_revision source_state=$source_state"
-RUNVARA_VERSION="$runvara_version" \
-RUNVARA_SOURCE_REVISION="$source_revision" \
-RUNVARA_SOURCE_STATE="$source_state" \
-RUNVARA_BUILD_DATE="$build_date" \
-  docker compose build runvara dashboard
+common_args=(
+  --build-arg "RUNVARA_VERSION=$runvara_version"
+  --build-arg "RUNVARA_SOURCE_REVISION=$source_revision"
+  --build-arg "RUNVARA_SOURCE_STATE=$source_state"
+  --build-arg "RUNVARA_BUILD_DATE=$build_date"
+)
+
+docker build \
+  "${common_args[@]}" \
+  --file "$ROOT_DIR/Dockerfile" \
+  --tag runvara:local \
+  "$ROOT_DIR"
+docker build \
+  "${common_args[@]}" \
+  --file "$ROOT_DIR/dashboard/Dockerfile" \
+  --tag runvara-dashboard:local \
+  "$ROOT_DIR"
 
 for image in runvara:local runvara-dashboard:local; do
   image_id="$(docker image inspect "$image" --format '{{.Id}}')"
@@ -48,3 +60,5 @@ for image in runvara:local runvara-dashboard:local; do
   fi
   log "built $image id=$image_id version=$image_version revision=$image_revision source_state=$image_state"
 done
+
+log "start these source-built images with: RUNVARA_LOCAL_BUILD=1 scripts/compose-up.sh"

@@ -90,6 +90,7 @@ for number, raw in enumerate(env_path.read_text(encoding="utf-8").splitlines(), 
 required = {
     "RUNVARA_DATABASE_URL",
     "RUNVARA_AUTH_TOKEN",
+    "RUNVARA_HEALTHCHECK_API_KEY",
     "RUNVARA_ADMIN_USERNAME",
     "RUNVARA_ADMIN_PASSWORD",
     "RUNVARA_BACKUP_ADMIN_USERNAME",

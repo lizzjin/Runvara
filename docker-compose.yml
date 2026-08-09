@@ -16,6 +16,7 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    stop_grace_period: ${RUNVARA_POSTGRES_STOP_GRACE_PERIOD:-1m}
     logging:
       driver: json-file
       options:
@@ -31,7 +32,8 @@ services:
         RUNVARA_SOURCE_REVISION: ${RUNVARA_SOURCE_REVISION:-unknown}
         RUNVARA_SOURCE_STATE: ${RUNVARA_SOURCE_STATE:-unknown}
         RUNVARA_BUILD_DATE: ${RUNVARA_BUILD_DATE:-unknown}
-    image: runvara:local
+    image: ${RUNVARA_IMAGE:-runvara:local}
+    pull_policy: ${RUNVARA_PULL_POLICY:-never}
     init: true
     read_only: true
     cap_drop:
@@ -66,7 +68,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # The image-level healthcheck is liveness-only. Compose overrides it with
+    # authenticated storage readiness so `healthy` means the gateway may take
+    # traffic. Shared deployments should issue a dedicated scoped probe key.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          probe_key="$${RUNVARA_HEALTHCHECK_API_KEY:-$${RUNVARA_AUTH_TOKEN:-}}";
+          test -n "$${probe_key}" &&
+          curl -fsS -H "x-api-key: $${probe_key}" http://127.0.0.1:38082/readyz >/dev/null
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 4
     restart: unless-stopped
+    # Default request timeout is 600s and finalizer drain is 30s. This window
+    # lets an ordinary in-flight request finish before Docker sends SIGKILL.
+    stop_grace_period: ${RUNVARA_STOP_GRACE_PERIOD:-11m}
     logging:
       driver: json-file
       options:
@@ -82,7 +101,8 @@ services:
         RUNVARA_SOURCE_REVISION: ${RUNVARA_SOURCE_REVISION:-unknown}
         RUNVARA_SOURCE_STATE: ${RUNVARA_SOURCE_STATE:-unknown}
         RUNVARA_BUILD_DATE: ${RUNVARA_BUILD_DATE:-unknown}
-    image: runvara-dashboard:local
+    image: ${RUNVARA_DASHBOARD_IMAGE:-runvara-dashboard:local}
+    pull_policy: ${RUNVARA_PULL_POLICY:-never}
     init: true
     read_only: true
     cap_drop:
@@ -91,12 +111,10 @@ services:
       - no-new-privileges:true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=32m
-    depends_on:
-      runvara:
-        condition: service_healthy
     ports:
       - "${RUNVARA_DASHBOARD_PUBLISH:-127.0.0.1:33002}:8080"
     restart: unless-stopped
+    stop_grace_period: ${RUNVARA_DASHBOARD_STOP_GRACE_PERIOD:-30s}
     logging:
       driver: json-file
       options:
