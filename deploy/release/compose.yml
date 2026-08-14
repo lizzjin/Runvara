@@ -104,9 +104,46 @@ services:
         max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
         max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
 
+  ops-agent:
+    profiles: ["ops-agent"]
+    image: ${RUNVARA_OPS_AGENT_IMAGE:-ghcr.io/tiammomo/runvara-ops-agent:0.1.0}
+    pull_policy: ${RUNVARA_PULL_POLICY:-missing}
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: ${RUNVARA_OPS_CPU_LIMIT:-0.50}
+    mem_limit: ${RUNVARA_OPS_MEMORY_LIMIT:-256m}
+    pids_limit: ${RUNVARA_OPS_PIDS_LIMIT:-128}
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    environment:
+      RUNVARA_OPS_BASE_URL: http://runvara:38082
+      RUNVARA_OPS_API_KEY: ${RUNVARA_OPS_API_KEY:-}
+      RUNVARA_OPS_MODEL_API_KEY: ${RUNVARA_OPS_MODEL_API_KEY:-}
+      RUNVARA_OPS_MODE: ${RUNVARA_OPS_MODE:-shadow}
+      RUNVARA_OPS_INTERVAL_SECONDS: ${RUNVARA_OPS_INTERVAL_SECONDS:-300}
+      RUNVARA_OPS_WEBHOOK_URL: ${RUNVARA_OPS_WEBHOOK_URL:-}
+      RUST_LOG: ${RUNVARA_OPS_RUST_LOG:-runvara_ops_agent=info}
+    volumes:
+      - runvara-ops-spool:/var/lib/runvara-ops
+    depends_on:
+      runvara:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: ${RUNVARA_LOG_MAX_SIZE:-10m}
+        max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
+
 volumes:
   runvara-data:
   runvara-postgres-18:
+  runvara-ops-spool:
 
 networks:
   default:

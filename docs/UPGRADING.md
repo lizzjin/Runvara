@@ -33,7 +33,8 @@ cosign verify \
   ghcr.io/tiammomo/runvara@sha256:<backend-digest>
 ```
 
-Repeat the image verification for `runvara-dashboard`. Verification proves
+Repeat the image verification for `runvara-dashboard` and, when enabled,
+`runvara-ops-agent`. Verification proves
 release provenance; it does not prove that a Provider account or model remains
 compatible.
 
@@ -85,6 +86,8 @@ operator-owned deployment environment:
 ```bash
 export RUNVARA_IMAGE='ghcr.io/tiammomo/runvara@sha256:<backend-digest>'
 export RUNVARA_DASHBOARD_IMAGE='ghcr.io/tiammomo/runvara-dashboard@sha256:<dashboard-digest>'
+# Required only when the optional Compose profile is enabled.
+export RUNVARA_OPS_AGENT_IMAGE='ghcr.io/tiammomo/runvara-ops-agent@sha256:<agent-digest>'
 export RUNVARA_PULL_POLICY=always
 ```
 

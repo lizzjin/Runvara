@@ -68,18 +68,30 @@ Set RUNVARA_COMPOSE_FILE to select a manifest; it defaults to the root
 source-build profile.
 
 Set RUNVARA_LOCAL_BUILD=1 after scripts/build-container.sh to use the local
-runvara:local and runvara-dashboard:local images without pulling GHCR.
+backend, dashboard, and optional operations-agent images without pulling GHCR.
 USAGE
   exit 0
 fi
 
 if [[ "${RUNVARA_LOCAL_BUILD:-0}" == "1" ]]; then
-  for local_image in runvara:local runvara-dashboard:local; do
+  local_images=(runvara:local runvara-dashboard:local)
+  if [[ ",${COMPOSE_PROFILES:-}," == *,ops-agent,* ]]; then
+    local_images+=(runvara-ops-agent:local)
+  else
+    for requested_service in "$@"; do
+      if [[ "$requested_service" == "ops-agent" ]]; then
+        local_images+=(runvara-ops-agent:local)
+        break
+      fi
+    done
+  fi
+  for local_image in "${local_images[@]}"; do
     docker image inspect "$local_image" >/dev/null 2>&1 \
       || die "missing $local_image; run scripts/build-container.sh first"
   done
   export RUNVARA_IMAGE=runvara:local
   export RUNVARA_DASHBOARD_IMAGE=runvara-dashboard:local
+  export RUNVARA_OPS_AGENT_IMAGE=runvara-ops-agent:local
   export RUNVARA_PULL_POLICY=never
 fi
 

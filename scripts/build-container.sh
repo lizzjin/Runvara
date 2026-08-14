@@ -48,8 +48,13 @@ docker build \
   --file "$ROOT_DIR/dashboard/Dockerfile" \
   --tag runvara-dashboard:local \
   "$ROOT_DIR"
+docker build \
+  "${common_args[@]}" \
+  --file "$ROOT_DIR/ops-agent/Dockerfile" \
+  --tag runvara-ops-agent:local \
+  "$ROOT_DIR"
 
-for image in runvara:local runvara-dashboard:local; do
+for image in runvara:local runvara-dashboard:local runvara-ops-agent:local; do
   image_id="$(docker image inspect "$image" --format '{{.Id}}')"
   image_revision="$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')"
   image_state="$(docker image inspect "$image" --format '{{index .Config.Labels "io.runvara.source-state"}}')"

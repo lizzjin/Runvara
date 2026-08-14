@@ -42,6 +42,7 @@ jobs:
           [[ "$dashboard_lock_version" == "$version" ]]
           grep -F "ghcr.io/tiammomo/runvara:${version}" deploy/release/compose.yml
           grep -F "ghcr.io/tiammomo/runvara-dashboard:${version}" deploy/release/compose.yml
+          grep -F "ghcr.io/tiammomo/runvara-ops-agent:${version}" deploy/release/compose.yml
 
   verification:
     name: Verify release candidate
@@ -132,6 +133,9 @@ jobs:
           - title: dashboard image
             image: runvara-dashboard
             dockerfile: dashboard/Dockerfile
+          - title: operations agent image
+            image: runvara-ops-agent
+            dockerfile: ops-agent/Dockerfile
 
     steps:
       - name: Checkout release tag
