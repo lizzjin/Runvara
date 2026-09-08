@@ -1,6 +1,6 @@
 [Unit]
 Description=Runvara local Claude model gateway
-Documentation=https://github.com/tiammomo/Runvara
+Documentation=https://github.com/lizzjin/Runvara
 After=network-online.target
 Wants=network-online.target
 

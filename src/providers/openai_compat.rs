@@ -543,6 +543,10 @@ fn apply_default_reasoning_config(
     apply_llama_cpp_reasoning(requested_model, enabled, None, config, body)
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Reasoning inputs and provider dialect policy are independent protocol mapping inputs"
+)]
 fn apply_reasoning_dialect(
     requested_model: &str,
     effort: Option<ReasoningEffort>,

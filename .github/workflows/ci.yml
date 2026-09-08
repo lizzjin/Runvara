@@ -78,8 +78,8 @@ jobs:
           RUNVARA_COMPOSE_ENV_FILE: deploy/docker/runvara.env.example
         run: |
           release_version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)"
-          grep -F "ghcr.io/tiammomo/runvara:${release_version}" deploy/release/compose.yml
-          grep -F "ghcr.io/tiammomo/runvara-dashboard:${release_version}" deploy/release/compose.yml
+          grep -F "ghcr.io/lizzjin/runvara:${release_version}" deploy/release/compose.yml
+          grep -F "ghcr.io/lizzjin/runvara-dashboard:${release_version}" deploy/release/compose.yml
           docker compose --env-file deploy/docker/runvara.env.example config --quiet
           RUNVARA_COMPOSE_ENV_FILE="$PWD/deploy/docker/runvara.env.example" \
           RUNVARA_CONFIG_FILE="$PWD/config.example.toml" \

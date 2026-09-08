@@ -55,7 +55,8 @@ fn validate_enterprise_security(values: EnterpriseSecurityValues) -> Result<(), 
         .filter(|value| !value.is_empty())
         .ok_or_else(|| {
             AppError::Config(
-                "RUNVARA_ENTERPRISE_MODE requires explicit RUNVARA_ALLOWED_ORIGINS".to_owned(),
+                "RUNVARA_ENTERPRISE_MODE requires explicit RUNVARA_ALLOWED_ORIGINS"
+                    .to_owned(),
             )
         })?;
     if allowed_origins

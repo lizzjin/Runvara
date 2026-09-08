@@ -40,9 +40,9 @@ jobs:
           [[ "$cargo_version" == "$version" ]]
           [[ "$dashboard_version" == "$version" ]]
           [[ "$dashboard_lock_version" == "$version" ]]
-          grep -F "ghcr.io/tiammomo/runvara:${version}" deploy/release/compose.yml
-          grep -F "ghcr.io/tiammomo/runvara-dashboard:${version}" deploy/release/compose.yml
-          grep -F "ghcr.io/tiammomo/runvara-ops-agent:${version}" deploy/release/compose.yml
+          grep -F "ghcr.io/lizzjin/runvara:${version}" deploy/release/compose.yml
+          grep -F "ghcr.io/lizzjin/runvara-dashboard:${version}" deploy/release/compose.yml
+          grep -F "ghcr.io/lizzjin/runvara-ops-agent:${version}" deploy/release/compose.yml
 
   verification:
     name: Verify release candidate

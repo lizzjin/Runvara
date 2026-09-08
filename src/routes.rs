@@ -389,7 +389,8 @@ impl RateLimiter {
         Self {
             config: RateLimitConfig {
                 enabled: !env_flag("RUNVARA_RATE_LIMIT_DISABLED"),
-                window_ms: env_u64("RUNVARA_RATE_LIMIT_WINDOW_SECONDS", 60).saturating_mul(1_000),
+                window_ms: env_u64("RUNVARA_RATE_LIMIT_WINDOW_SECONDS", 60)
+                    .saturating_mul(1_000),
                 global_per_minute: env_u32("RUNVARA_RATE_LIMIT_GLOBAL_PER_MINUTE", 6_000),
                 api_key_per_minute: env_u32("RUNVARA_RATE_LIMIT_API_KEY_PER_MINUTE", 600),
                 ip_per_minute: env_u32("RUNVARA_RATE_LIMIT_IP_PER_MINUTE", 1_200),
@@ -6218,7 +6219,10 @@ data: [DONE]
         let candidate_aliases =
             get_console_json(app.clone(), "/admin/aliases", candidate_cookie).await;
         assert_eq!(candidate_aliases[0]["alias"], "smart-model");
-        assert_eq!(candidate_aliases[0]["resolvedProvider"], "runvara-router");
+        assert_eq!(
+            candidate_aliases[0]["resolvedProvider"],
+            "runvara-router"
+        );
 
         // The logical alias happens to resolve through the default provider in
         // static routing. That must not make it visible when every real smart

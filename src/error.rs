@@ -320,9 +320,10 @@ impl IntoResponse for AppError {
         )
             .into_response();
 
-        response
-            .headers_mut()
-            .insert("x-runvara-error-contract", HeaderValue::from_static("v1"));
+        response.headers_mut().insert(
+            "x-runvara-error-contract",
+            HeaderValue::from_static("v1"),
+        );
 
         if let Some(retry_after_secs) = retry_after_secs
             && let Ok(value) = HeaderValue::from_str(&retry_after_secs.max(1).to_string())

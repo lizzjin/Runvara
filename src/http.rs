@@ -230,6 +230,10 @@ impl HttpTransport {
         .await
     }
 
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "Keep request identity, security policy, payload, and independent timeout overrides explicit"
+    )]
     pub async fn post_json_sse_with_timeouts(
         &self,
         provider_id: &str,

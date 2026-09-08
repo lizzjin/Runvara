@@ -4,8 +4,8 @@ use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc, time::Durat
 
 use anyhow::{Context, Result, bail};
 use axum::{Json, Router, extract::State, routing::get};
-use runvara_ops_protocol::{OpsAgentConfiguration, OpsHeartbeat, OpsObservation, OpsSnapshot};
 use reqwest::Client;
+use runvara_ops_protocol::{OpsAgentConfiguration, OpsHeartbeat, OpsObservation, OpsSnapshot};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use sqlx::{Row, SqlitePool, sqlite::SqliteConnectOptions};

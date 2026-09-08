@@ -110,7 +110,10 @@ fn cli_deployment_preflight_enforces_the_enterprise_security_profile() {
         ("RUNVARA_DATABASE_TLS_MODE", "verify-full"),
         ("RUNVARA_ADMIN_COOKIE_SECURE", "1"),
         ("RUNVARA_REQUIRE_CONTROL_API_KEYS", "1"),
-        ("RUNVARA_ALLOWED_ORIGINS", "https://runvara.example.com"),
+        (
+            "RUNVARA_ALLOWED_ORIGINS",
+            "https://runvara.example.com",
+        ),
         ("RUNVARA_TRUSTED_PROXIES", "127.0.0.1"),
     ]);
     let valid_text = output_text(&valid);
@@ -244,7 +247,10 @@ fn oidc_static_preflight_is_fail_closed_and_does_not_contact_the_provider() {
             "https://identity.example.com/realms/runvara",
         ),
         ("RUNVARA_OIDC_CLIENT_ID", "runvara"),
-        ("RUNVARA_OIDC_CLIENT_SECRET", "replace-with-client-secret"),
+        (
+            "RUNVARA_OIDC_CLIENT_SECRET",
+            "replace-with-client-secret",
+        ),
         (
             "RUNVARA_OIDC_REDIRECT_URI",
             "https://runvara.example.com/admin/auth/oidc/callback",

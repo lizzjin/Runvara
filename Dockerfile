@@ -15,6 +15,7 @@ ENV RUNVARA_BUILD_SOURCE_STATE=${RUNVARA_SOURCE_STATE}
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
+COPY catalog ./catalog
 COPY migrations ./migrations
 COPY crates ./crates
 COPY ops-agent ./ops-agent
@@ -41,7 +42,7 @@ ARG RUNVARA_VERSION
 ARG RUNVARA_BUILD_DATE
 LABEL org.opencontainers.image.title="Runvara" \
       org.opencontainers.image.description="Self-hosted multi-protocol model gateway" \
-      org.opencontainers.image.source="https://github.com/tiammomo/Runvara" \
+      org.opencontainers.image.source="https://github.com/lizzjin/Runvara" \
       org.opencontainers.image.revision="$RUNVARA_SOURCE_REVISION" \
       org.opencontainers.image.version="$RUNVARA_VERSION" \
       org.opencontainers.image.created="$RUNVARA_BUILD_DATE" \

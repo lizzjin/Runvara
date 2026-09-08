@@ -26,7 +26,7 @@ services:
         max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
 
   runvara:
-    image: ${RUNVARA_IMAGE:-ghcr.io/tiammomo/runvara:0.1.0}
+    image: ${RUNVARA_IMAGE:-ghcr.io/lizzjin/runvara:0.1.0}
     pull_policy: ${RUNVARA_PULL_POLICY:-missing}
     init: true
     read_only: true
@@ -84,7 +84,7 @@ services:
         max-file: "${RUNVARA_LOG_MAX_FILES:-5}"
 
   dashboard:
-    image: ${RUNVARA_DASHBOARD_IMAGE:-ghcr.io/tiammomo/runvara-dashboard:0.1.0}
+    image: ${RUNVARA_DASHBOARD_IMAGE:-ghcr.io/lizzjin/runvara-dashboard:0.1.0}
     pull_policy: ${RUNVARA_PULL_POLICY:-missing}
     init: true
     read_only: true
@@ -106,7 +106,7 @@ services:
 
   ops-agent:
     profiles: ["ops-agent"]
-    image: ${RUNVARA_OPS_AGENT_IMAGE:-ghcr.io/tiammomo/runvara-ops-agent:0.1.0}
+    image: ${RUNVARA_OPS_AGENT_IMAGE:-ghcr.io/lizzjin/runvara-ops-agent:0.1.0}
     pull_policy: ${RUNVARA_PULL_POLICY:-missing}
     init: true
     read_only: true

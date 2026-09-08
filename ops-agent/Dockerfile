@@ -39,7 +39,7 @@ ARG RUNVARA_VERSION
 ARG RUNVARA_BUILD_DATE
 LABEL org.opencontainers.image.title="Runvara Operations Agent" \
       org.opencontainers.image.description="Deterministic read-only operations agent for Runvara" \
-      org.opencontainers.image.source="https://github.com/tiammomo/Runvara" \
+      org.opencontainers.image.source="https://github.com/lizzjin/Runvara" \
       org.opencontainers.image.revision="$RUNVARA_SOURCE_REVISION" \
       org.opencontainers.image.version="$RUNVARA_VERSION" \
       org.opencontainers.image.created="$RUNVARA_BUILD_DATE" \

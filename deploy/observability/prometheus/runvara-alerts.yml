@@ -10,7 +10,7 @@ groups:
         annotations:
           summary: Runvara metrics target is unreachable
           description: Prometheus has been unable to scrape {{ $labels.instance }} for two minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarametricstargetdown
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarametricstargetdown
 
       - alert: RunvaraNotReady
         expr: runvara_gateway_ready == 0
@@ -21,7 +21,7 @@ groups:
         annotations:
           summary: Runvara is alive but not ready for governed traffic
           description: Fail-closed gateway dependencies on {{ $labels.instance }} have been unready for two minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaranotready
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaranotready
 
       # Optional independent endpoint probe. It remains silent when the
       # Blackbox Exporter example has not been installed.
@@ -34,7 +34,7 @@ groups:
         annotations:
           summary: Runvara authenticated readiness endpoint is unreachable
           description: The independent /readyz probe for {{ $labels.instance }} has failed for two minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaranotready
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaranotready
 
       - alert: RunvaraDirtyBuildRunning
         expr: runvara_build_info{source_state!="clean"} == 1
@@ -45,7 +45,7 @@ groups:
         annotations:
           summary: A non-release Runvara build is running
           description: Instance {{ $labels.instance }} reports source_state={{ $labels.source_state }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaradirtybuildrunning
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaradirtybuildrunning
 
   - name: runvara.storage
     rules:
@@ -58,7 +58,7 @@ groups:
         annotations:
           summary: Runvara cannot complete its PostgreSQL readiness query
           description: PostgreSQL readiness is failing on {{ $labels.instance }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaranotready
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaranotready
 
       - alert: RunvaraDatabasePoolSaturated
         expr: runvara_database_pool_utilization_ratio > 0.85
@@ -69,7 +69,7 @@ groups:
         annotations:
           summary: Runvara PostgreSQL pool utilization is above 85%
           description: Instance {{ $labels.instance }} has sustained pool utilization of {{ $value | humanizePercentage }} for five minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaradatabasepoolsaturated
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaradatabasepoolsaturated
 
       - alert: RunvaraLedgerOperationDegraded
         expr: runvara_ledger_operation_degraded == 1
@@ -80,7 +80,7 @@ groups:
         annotations:
           summary: Runvara ledger operation is degraded
           description: The most recent {{ $labels.operation }} operation failed on {{ $labels.instance }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraledgeroperationdegraded
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraledgeroperationdegraded
 
       - alert: RunvaraLedgerFailuresDetected
         expr: increase(runvara_ledger_operation_failures_total[10m]) > 0
@@ -90,7 +90,7 @@ groups:
         annotations:
           summary: Runvara ledger failures occurred
           description: Operation {{ $labels.operation }} failed {{ $value | humanize }} time(s) in ten minutes on {{ $labels.instance }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraledgeroperationdegraded
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraledgeroperationdegraded
 
       - alert: RunvaraPendingFinalizersStuck
         expr: runvara_ledger_pending_finalizers > 0
@@ -101,7 +101,7 @@ groups:
         annotations:
           summary: Runvara request finalizers are not settling
           description: Instance {{ $labels.instance }} has {{ $value | humanize }} pending finalizer(s) after two minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarapendingfinalizersstuck
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarapendingfinalizersstuck
 
       - alert: RunvaraExpiredLeasesReconciled
         expr: >-
@@ -113,7 +113,7 @@ groups:
         annotations:
           summary: Runvara reconciled expired request leases
           description: Instance {{ $labels.instance }} reconciled {{ $value | humanize }} expired request/attempt lease(s) in fifteen minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraexpiredleasesreconciled
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraexpiredleasesreconciled
 
   - name: runvara.traffic
     rules:
@@ -133,7 +133,7 @@ groups:
         annotations:
           summary: Runvara inference error rate is above 10%
           description: The ten-minute inference error ratio is {{ $value | humanizePercentage }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarainferenceerrorratehigh
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarainferenceerrorratehigh
 
       - alert: RunvaraInferenceP95LatencyHigh
         expr: >-
@@ -150,7 +150,7 @@ groups:
         annotations:
           summary: Runvara inference p95 latency is above two minutes
           description: Global end-to-end p95 latency is {{ $value | humanize }} ms; compare with Provider generation time before changing gateway limits.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarainferencep95latencyhigh
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvarainferencep95latencyhigh
 
       - alert: RunvaraAdmissionOrStreamPressure
         expr: >-
@@ -164,7 +164,7 @@ groups:
         annotations:
           summary: Runvara is rejecting work at admission or stream concurrency
           description: Phase {{ $labels.phase }} rejected {{ $value | humanize }} request(s) in ten minutes.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
 
       - alert: RunvaraLocalInteractiveQueueWaiting
         expr: runvara_local_scheduler_oldest_interactive_wait_ms > 30000
@@ -175,7 +175,7 @@ groups:
         annotations:
           summary: Runvara local interactive queue wait exceeds 30 seconds
           description: The oldest interactive request on {{ $labels.instance }} has waited {{ $value | humanize }} ms.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
 
       - alert: RunvaraLocalBatchQueueWaiting
         expr: runvara_local_scheduler_oldest_batch_wait_ms > 300000
@@ -186,7 +186,7 @@ groups:
         annotations:
           summary: Runvara local batch queue wait exceeds five minutes
           description: The oldest batch request on {{ $labels.instance }} has waited {{ $value | humanize }} ms.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
 
       - alert: RunvaraStreamPermitsExhausted
         expr: >-
@@ -202,7 +202,7 @@ groups:
         annotations:
           summary: Runvara stream permits are exhausted and requests are being rejected
           description: Instance {{ $labels.instance }} has no stream permits and recorded concurrency rejection(s).
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraadmissionorstreampressure
 
       - alert: RunvaraQuotaRejectionsDetected
         expr: >-
@@ -213,7 +213,7 @@ groups:
         annotations:
           summary: Runvara rejected requests for quota exhaustion
           description: "{{ $value | humanize }} pre-ledger request(s) were rejected for quota exhaustion in fifteen minutes."
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraquotarejectionsdetected
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraquotarejectionsdetected
 
   - name: runvara.providers
     rules:
@@ -226,7 +226,7 @@ groups:
         annotations:
           summary: A configured Runvara Provider is unavailable
           description: Provider {{ $labels.provider }} has no usable credential or is cooling down on {{ $labels.instance }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraprovidererrorratehigh
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraprovidererrorratehigh
 
       - alert: RunvaraProviderCoolingDown
         expr: runvara_provider_cooldown == 1
@@ -237,7 +237,7 @@ groups:
         annotations:
           summary: Runvara has placed a Provider in cooldown
           description: Provider {{ $labels.provider }} is cooling down on {{ $labels.instance }} after retryable/account failures.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraprovidererrorratehigh
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraprovidererrorratehigh
 
       - alert: RunvaraProviderErrorRateHigh
         expr: >-
@@ -264,4 +264,4 @@ groups:
         annotations:
           summary: Runvara Provider error rate is above 20%
           description: Provider {{ $labels.provider }} has a ten-minute error ratio of {{ $value | humanizePercentage }}.
-          runbook_url: https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraprovidererrorratehigh
+          runbook_url: https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md#runvaraprovidererrorratehigh

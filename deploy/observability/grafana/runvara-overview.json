@@ -41,7 +41,7 @@
       "title": "Alert runbook",
       "tooltip": "Runvara observability runbook",
       "type": "link",
-      "url": "https://github.com/tiammomo/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md"
+      "url": "https://github.com/lizzjin/Runvara/blob/main/docs/OBSERVABILITY_RUNBOOK.md"
     }
   ],
   "panels": [

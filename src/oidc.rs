@@ -506,7 +506,9 @@ impl OidcConfig {
         }
 
         let issuer = issuer.ok_or_else(|| {
-            AppError::Config("RUNVARA_OIDC_ISSUER is required when OIDC is configured".to_owned())
+            AppError::Config(
+                "RUNVARA_OIDC_ISSUER is required when OIDC is configured".to_owned(),
+            )
         })?;
         let client_id = client_id.ok_or_else(|| {
             AppError::Config(
