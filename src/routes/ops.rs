@@ -224,9 +224,7 @@ async fn append_runtime_metrics(state: &AppState, output: &mut String) {
             .get(field)
             .and_then(serde_json::Value::as_u64)
             .unwrap_or(0);
-        output.push_str(&format!(
-            "# TYPE runvara_local_scheduler_{metric} gauge\n"
-        ));
+        output.push_str(&format!("# TYPE runvara_local_scheduler_{metric} gauge\n"));
         output.push_str(&format!("runvara_local_scheduler_{metric} {value}\n"));
     }
     output.push_str(

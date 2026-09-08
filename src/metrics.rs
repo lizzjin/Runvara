@@ -274,7 +274,9 @@ impl Metrics {
         output.push_str("# TYPE runvara_route_requests_total counter\n");
         output.push_str("# HELP runvara_route_successes_total Total successful route requests handled by Runvara.\n");
         output.push_str("# TYPE runvara_route_successes_total counter\n");
-        output.push_str("# HELP runvara_route_failures_total Total failed route requests handled by Runvara.\n");
+        output.push_str(
+            "# HELP runvara_route_failures_total Total failed route requests handled by Runvara.\n",
+        );
         output.push_str("# TYPE runvara_route_failures_total counter\n");
         output.push_str("# HELP runvara_route_duration_ms_total Total route handling duration in milliseconds.\n");
         output.push_str("# TYPE runvara_route_duration_ms_total counter\n");
@@ -622,9 +624,11 @@ mod tests {
         assert!(rendered.contains(
             r#"runvara_ledger_operation_failures_total{operation="request_finalization"} 1"#
         ));
-        assert!(rendered.contains(
-            r#"runvara_ledger_operation_degraded{operation="request_finalization"} 1"#
-        ));
+        assert!(
+            rendered.contains(
+                r#"runvara_ledger_operation_degraded{operation="request_finalization"} 1"#
+            )
+        );
         assert!(rendered.contains("runvara_ledger_reconciled_requests_total 2"));
         assert!(rendered.contains("runvara_ledger_reconciled_attempts_total 3"));
         assert!(rendered.contains(

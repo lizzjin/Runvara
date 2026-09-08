@@ -1,0 +1,998 @@
+{
+  "note": "Historical source rendered with current branding; not evidence of original-date validation.",
+  "captures": [
+    {
+      "file": "docs/assets/workbench-redesign/before-api-keys-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:54.394Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-dashboard-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:55.845Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-enterprise-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:57.222Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-governance-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:58.625Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-guide-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:00.086Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-login-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:01.182Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-logs-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:02.891Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-models-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:04.391Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-not-found-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:05.318Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-operations-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:06.778Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-quotas-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:08.335Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-settings-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:09.805Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-users-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:11.251Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-dashboard-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:17.070Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-models-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:18.572Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-logs-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:20.278Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-login-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:21.684Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-0-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-provider-form-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-0-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-4-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-1-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-provider-form-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-2-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-provider-form-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-governance-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-1-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-1-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-0-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-light-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-5-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-0-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-dark-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-3-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-0-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-guide-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-dark-native-zoom-200.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-light-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-light-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-dark-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-missing-page-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-2-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-3-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-operations-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-light-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-3-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-missing-page-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-4-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-light-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-form-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-governance-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-guide-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-dark-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-form-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-operations-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-form-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-4-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-dark-native-zoom-200.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-dark-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-missing-page-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-light-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-dark-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-light-native-zoom-200.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-form-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-form-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-light-native-zoom-200.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-operations-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-dark-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-2-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-light-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-governance-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-enterprise-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-1-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-provider-form-dark-native-zoom-200.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-provider-form-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-missing-page-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-light-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-1-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-enterprise-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-governance-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-operations-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-dark-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-provider-form-light-native-zoom-200.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-1-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-0-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-4-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-0-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-form-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-form-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-2-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-3-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-form-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-dark-768.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-4-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-enterprise-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-dark-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-guide-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-light-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-1-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-0-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-5-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-dashboard-section-1-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-dark-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-guide-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-form-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-dark-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-login-light-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-2-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-dark-1024.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-2-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-2-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-api-keys-form-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-1-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-enterprise-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-3-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-light-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-2-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-2-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-tab-1-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-light-1920.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-form-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-settings-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-quotas-dark-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-users-form-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-4-light-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-models-tab-3-dark-1440.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/after-logs-drawer-2-light-390.png",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:31:01.847161+00:00"
+    }
+  ]
+}

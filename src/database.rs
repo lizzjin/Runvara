@@ -73,21 +73,17 @@ fn validate_values(values: DatabaseValidationValues<'_>) -> Result<(), AppError>
 
     ssl_mode_for(values.tls_mode, enterprise)?;
 
-    let max_connections = parse_optional_u32(
-        "RUNVARA_DATABASE_MAX_CONNECTIONS",
-        values.max_connections,
-    )?
-    .unwrap_or(DEFAULT_POOL_SIZE);
+    let max_connections =
+        parse_optional_u32("RUNVARA_DATABASE_MAX_CONNECTIONS", values.max_connections)?
+            .unwrap_or(DEFAULT_POOL_SIZE);
     if max_connections == 0 {
         return Err(AppError::Config(
             "RUNVARA_DATABASE_MAX_CONNECTIONS must be at least 1".to_owned(),
         ));
     }
-    let min_connections = parse_optional_u32(
-        "RUNVARA_DATABASE_MIN_CONNECTIONS",
-        values.min_connections,
-    )?
-    .unwrap_or(0);
+    let min_connections =
+        parse_optional_u32("RUNVARA_DATABASE_MIN_CONNECTIONS", values.min_connections)?
+            .unwrap_or(0);
     if min_connections > max_connections {
         return Err(AppError::Config(
             "RUNVARA_DATABASE_MIN_CONNECTIONS must not exceed RUNVARA_DATABASE_MAX_CONNECTIONS"
@@ -169,8 +165,7 @@ fn ssl_mode_for(configured: Option<&str>, enterprise: bool) -> Result<PgSslMode,
         })
     {
         return Err(AppError::Config(
-            "RUNVARA_ENTERPRISE_MODE requires RUNVARA_DATABASE_TLS_MODE=verify-full"
-                .to_owned(),
+            "RUNVARA_ENTERPRISE_MODE requires RUNVARA_DATABASE_TLS_MODE=verify-full".to_owned(),
         ));
     }
     let mode = configured
@@ -331,9 +326,7 @@ mod tests {
         assert!(parse_flag("RUNVARA_ENTERPRISE_MODE", Some("maybe")).is_err());
         assert!(parse_flag("RUNVARA_ENTERPRISE_MODE", Some("yes")).unwrap());
         assert!(parse_optional_u32("RUNVARA_DATABASE_MAX_CONNECTIONS", Some("many")).is_err());
-        assert!(
-            parse_optional_u64("RUNVARA_DATABASE_ACQUIRE_TIMEOUT_SECS", Some("-1")).is_err()
-        );
+        assert!(parse_optional_u64("RUNVARA_DATABASE_ACQUIRE_TIMEOUT_SECS", Some("-1")).is_err());
     }
 
     #[test]

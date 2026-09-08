@@ -29,8 +29,8 @@ contract checks, GPU runtime activation, and gateway verification separate.
 This track requires Git, Docker, and Docker Compose v2. Rust is not required.
 
 ```bash
-git clone https://github.com/tiammomo/Runvara.git
-cd Runvara
+git clone https://github.com/lizzjin/Runvara.git runvara
+cd runvara
 cp deploy/docker/runvara.env.example .env
 cp config.example.toml config.toml
 # Replace every required replace-with-... value.

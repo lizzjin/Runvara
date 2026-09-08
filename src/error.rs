@@ -320,10 +320,9 @@ impl IntoResponse for AppError {
         )
             .into_response();
 
-        response.headers_mut().insert(
-            "x-runvara-error-contract",
-            HeaderValue::from_static("v1"),
-        );
+        response
+            .headers_mut()
+            .insert("x-runvara-error-contract", HeaderValue::from_static("v1"));
 
         if let Some(retry_after_secs) = retry_after_secs
             && let Ok(value) = HeaderValue::from_str(&retry_after_secs.max(1).to_string())
@@ -454,9 +453,7 @@ fn error_hint(error: &AppError) -> &'static str {
         AppError::Config(_) | AppError::MissingSecret(_) => {
             "检查环境变量、配置文件和供应商 API Key 后重启 Runvara。"
         }
-        AppError::Database(_) => {
-            "检查 RUNVARA_DATABASE_URL、PostgreSQL 容器健康状态和数据库权限。"
-        }
+        AppError::Database(_) => "检查 RUNVARA_DATABASE_URL、PostgreSQL 容器健康状态和数据库权限。",
         AppError::Forbidden(_) => "当前账号权限不足，或 API Key 的归属/IP 策略拒绝了本次操作。",
         AppError::IdempotencyConflict(_) => {
             "该幂等键已被当前租户中的请求占用；请等待原请求完成，或使用新的幂等键。"

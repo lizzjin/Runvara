@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-18T12:33:42.406171+00:00",
+  "head": "d0fce4090a1e55cab9dc2efaffc69b2619814048",
+  "status": "complete",
+  "frontend": {
+    "node": "22.22.3",
+    "typecheck": "passed",
+    "lint": "passed",
+    "unitTestFiles": 29,
+    "unitTests": 109,
+    "productionBuild": "passed"
+  },
+  "rust": {
+    "toolchain": "1.96.0",
+    "architecture": "aarch64 Linux container",
+    "tests": 451,
+    "format": "passed",
+    "clippy": "passed",
+    "finalMigrationTests": 2,
+    "postgres": "fresh isolated PostgreSQL 18.4; serial tests; dump/restore migration drill"
+  },
+  "browser": {
+    "tests": 31,
+    "result": "passed",
+    "currentLiveCaptures": 39,
+    "layoutRuntimeIssues": 0,
+    "historicalZoomStates": 28,
+    "historicalSourceOnlyBrandSubstitution": true,
+    "axeAuditPerformed": false
+  },
+  "configuration": {
+    "envExamples": 3,
+    "tomlExamples": 2,
+    "result": "passed"
+  },
+  "deployment": {
+    "developmentCompose": "passed",
+    "releaseCompose": "passed",
+    "prometheusConfig": "passed",
+    "prometheusAlertRules": 20,
+    "newContainerImagesBuilt": false
+  },
+  "docs": {
+    "linkCheck": "passed",
+    "shellSyntaxFiles": 25,
+    "gitDiffCheck": "passed"
+  },
+  "backup": {
+    "export": "passed",
+    "validate": "passed"
+  },
+  "externalRepositoryRenamed": false,
+  "workspaceDirectoryRenamed": false,
+  "sourceNameScan": {
+    "onlyResiduals": "47 actual external GitHub repository references; no source identifiers or project-relative paths retain old names"
+  },
+  "limits": [
+    "No real model calls, upstream billing, release publication, or production deployment.",
+    "Existing deployment databases and backup identity are incompatible; fresh deployment was explicitly authorized.",
+    "Git history, dependencies, build outputs and temporary baselines are outside source rename scope."
+  ],
+  "imageBrandScan": {
+    "tool": "macOS Vision OCR",
+    "images": 220,
+    "oldBrandMatches": 0,
+    "readFailures": 0
+  }
+}

@@ -40,7 +40,7 @@ ARG RUNVARA_SOURCE_REVISION
 ARG RUNVARA_SOURCE_STATE
 ARG RUNVARA_VERSION
 ARG RUNVARA_BUILD_DATE
-LABEL org.opencontainers.image.title="Runvara" \
+LABEL org.opencontainers.image.title="Runvara AI Gateway" \
       org.opencontainers.image.description="Self-hosted multi-protocol model gateway" \
       org.opencontainers.image.source="https://github.com/lizzjin/Runvara" \
       org.opencontainers.image.revision="$RUNVARA_SOURCE_REVISION" \

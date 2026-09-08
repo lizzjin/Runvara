@@ -350,10 +350,8 @@ impl RetentionPolicy {
             "RUNVARA_USER_USAGE_RETENTION_DAYS",
             DEFAULT_USER_USAGE_RETENTION_DAYS,
         )?;
-        let audit_days = retention_days_from_env(
-            "RUNVARA_AUDIT_RETENTION_DAYS",
-            DEFAULT_AUDIT_RETENTION_DAYS,
-        )?;
+        let audit_days =
+            retention_days_from_env("RUNVARA_AUDIT_RETENTION_DAYS", DEFAULT_AUDIT_RETENTION_DAYS)?;
         if request_detail_days > user_usage_days || user_usage_days > audit_days {
             return Err(AppError::Config(
                 "retention days must satisfy request detail <= user usage <= audit".to_owned(),
@@ -899,8 +897,7 @@ impl EnterpriseLedger {
         }
         let Some(database_url) = enterprise_database_url() else {
             return Err(AppError::Config(
-                "RUNVARA_ENTERPRISE_DATABASE_URL or RUNVARA_DATABASE_URL is required"
-                    .to_owned(),
+                "RUNVARA_ENTERPRISE_DATABASE_URL or RUNVARA_DATABASE_URL is required".to_owned(),
             ));
         };
 

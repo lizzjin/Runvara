@@ -78,12 +78,12 @@ Consumers should verify checksums and GitHub attestations:
 ```bash
 sha256sum --check SHA256SUMS
 gh attestation verify runvara-vX.Y.Z-linux-amd64.tar.gz \
-  --repo tiammomo/Runvara
-docker pull ghcr.io/tiammomo/runvara:X.Y.Z
+  --repo lizzjin/Runvara
+docker pull ghcr.io/lizzjin/runvara:X.Y.Z
 cosign verify \
-  --certificate-identity-regexp='https://github.com/tiammomo/Runvara/.github/workflows/release.yml@refs/tags/vX[.]Y[.]Z' \
+  --certificate-identity-regexp='https://github.com/lizzjin/Runvara/.github/workflows/release.yml@refs/tags/vX[.]Y[.]Z' \
   --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
-  ghcr.io/tiammomo/runvara@sha256:<digest>
+  ghcr.io/lizzjin/runvara@sha256:<digest>
 ```
 
 For container provenance, verify the immutable digest rather than relying only

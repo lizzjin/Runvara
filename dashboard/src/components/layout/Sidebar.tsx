@@ -79,6 +79,7 @@ export function Sidebar({ onNavigate, mobile = false }: SidebarProps) {
           {!isCollapsed && (
             <div className="min-w-0">
               <span className="block text-lg font-bold leading-5 tracking-tight">Runvara</span>
+              <span className="block text-xs text-muted-foreground">AI Gateway</span>
               <span
                 className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
                 title="v0.1.x Small-Team Beta：单实例、自托管，不承诺高可用或公网多租户"

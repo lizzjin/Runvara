@@ -35,8 +35,8 @@ Dashboard 是 Runvara 的管理界面，不是聊天应用。Runvara 负责鉴�
 v2，不需要先学习 Rust。
 
 ```bash
-git clone https://github.com/tiammomo/Runvara.git
-cd Runvara
+git clone https://github.com/lizzjin/Runvara.git runvara
+cd runvara
 cp deploy/docker/runvara.env.example .env
 cp config.example.toml config.toml
 ```

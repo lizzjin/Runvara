@@ -2383,10 +2383,7 @@ fn validate_runtime_guardrail_env(issues: &mut Vec<ConfigIssue>) {
             "RUNVARA_MAX_MODEL_NAME_CHARS",
             NumericEnvRequirement::NonZeroUsize,
         ),
-        (
-            "RUNVARA_MAX_MESSAGES",
-            NumericEnvRequirement::NonZeroUsize,
-        ),
+        ("RUNVARA_MAX_MESSAGES", NumericEnvRequirement::NonZeroUsize),
         (
             "RUNVARA_MAX_MESSAGES_JSON_CHARS",
             NumericEnvRequirement::NonZeroUsize,

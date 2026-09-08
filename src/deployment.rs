@@ -55,8 +55,7 @@ fn validate_enterprise_security(values: EnterpriseSecurityValues) -> Result<(), 
         .filter(|value| !value.is_empty())
         .ok_or_else(|| {
             AppError::Config(
-                "RUNVARA_ENTERPRISE_MODE requires explicit RUNVARA_ALLOWED_ORIGINS"
-                    .to_owned(),
+                "RUNVARA_ENTERPRISE_MODE requires explicit RUNVARA_ALLOWED_ORIGINS".to_owned(),
             )
         })?;
     if allowed_origins
@@ -89,9 +88,7 @@ fn validate_finalization_drain_timeout() -> Result<(), AppError> {
         return Ok(());
     };
     let seconds = value.parse::<u64>().map_err(|_| {
-        AppError::Config(
-            "RUNVARA_FINALIZATION_DRAIN_TIMEOUT_SECONDS must be an integer".to_owned(),
-        )
+        AppError::Config("RUNVARA_FINALIZATION_DRAIN_TIMEOUT_SECONDS must be an integer".to_owned())
     })?;
     if !(1..=300).contains(&seconds) {
         return Err(AppError::Config(

@@ -811,8 +811,7 @@ impl AuthStore {
             &env::var("RUNVARA_ADMIN_USERNAME").unwrap_or_else(|_| "admin".to_owned()),
         )?;
         let email = validate_email(
-            &env::var("RUNVARA_ADMIN_EMAIL")
-                .unwrap_or_else(|_| "admin@runvara.local".to_owned()),
+            &env::var("RUNVARA_ADMIN_EMAIL").unwrap_or_else(|_| "admin@runvara.local".to_owned()),
         )?;
         let primary = new_bootstrap_admin(username, email, &password)?;
         inner.users.insert(primary.id.clone(), primary);

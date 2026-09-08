@@ -380,21 +380,17 @@ async fn count_tokens_inner(
     })
     .transpose()?
     .unwrap_or(policy.default_classification);
-    let requested_mode = request_routing_header(
-        headers,
-        &HYBRID_MODE,
-        "x-runvara-hybrid-mode",
-        32,
-    )?
-    .map(|value| {
-        HybridMode::parse(&value).ok_or_else(|| {
-            AppError::InvalidRequest(
+    let requested_mode =
+        request_routing_header(headers, &HYBRID_MODE, "x-runvara-hybrid-mode", 32)?
+            .map(|value| {
+                HybridMode::parse(&value).ok_or_else(|| {
+                    AppError::InvalidRequest(
                 "x-runvara-hybrid-mode must be local_strict, local_first, balanced, or cloud_first"
                     .to_owned(),
             )
-        })
-    })
-    .transpose()?;
+                })
+            })
+            .transpose()?;
     let mode = policy.effective_mode(requested_mode, classification)?;
     policy.enforce_attempt(&resolved)?;
     if mode == HybridMode::LocalStrict
@@ -653,40 +649,32 @@ async fn handle_inference(
     let workload_class = WorkloadClass::parse(&traffic_class).unwrap_or_default();
     let requested_model = exchange.requested_model.clone();
     let config = effective_config(&state);
-    let routing_profile = match request_routing_header(
-        &headers,
-        &ROUTING_PROFILE,
-        "x-runvara-routing-profile",
-        32,
-    ) {
-        Ok(value) => value,
-        Err(err) => {
-            return Err(record_inference_rejection(
-                &state,
-                route_name,
-                "validation",
-                err,
-                started,
-            ));
-        }
-    };
-    let routing_session_id = match request_routing_header(
-        &headers,
-        &ROUTING_SESSION_ID,
-        "x-runvara-session-id",
-        128,
-    ) {
-        Ok(value) => value,
-        Err(err) => {
-            return Err(record_inference_rejection(
-                &state,
-                route_name,
-                "validation",
-                err,
-                started,
-            ));
-        }
-    };
+    let routing_profile =
+        match request_routing_header(&headers, &ROUTING_PROFILE, "x-runvara-routing-profile", 32) {
+            Ok(value) => value,
+            Err(err) => {
+                return Err(record_inference_rejection(
+                    &state,
+                    route_name,
+                    "validation",
+                    err,
+                    started,
+                ));
+            }
+        };
+    let routing_session_id =
+        match request_routing_header(&headers, &ROUTING_SESSION_ID, "x-runvara-session-id", 128) {
+            Ok(value) => value,
+            Err(err) => {
+                return Err(record_inference_rejection(
+                    &state,
+                    route_name,
+                    "validation",
+                    err,
+                    started,
+                ));
+            }
+        };
     let routing_profile = match routing_profile.as_deref() {
         Some(value) => match RoutingProfile::parse(value) {
             Some(profile) => Some(profile),
@@ -1707,8 +1695,7 @@ fn request_traffic_class(headers: &HeaderMap) -> Result<String, AppError> {
         "synthetic" => Ok("synthetic".to_owned()),
         "diagnostic" => Ok("diagnostic".to_owned()),
         _ => Err(AppError::InvalidRequest(
-            "x-runvara-traffic-class must be business, batch, synthetic, or diagnostic"
-                .to_owned(),
+            "x-runvara-traffic-class must be business, batch, synthetic, or diagnostic".to_owned(),
         )),
     }
 }

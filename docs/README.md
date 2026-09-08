@@ -1,5 +1,7 @@
 # Runvara Documentation
 
+Runvara 的应用、配置及部署资源统一使用新的项目命名。
+
 The root [README](../README.md) is the product entry point. You do not need to
 read every document: choose the path that matches your task.
 
@@ -54,6 +56,13 @@ read every document: choose the path that matches your task.
   persistence, trust boundaries, and deliberate non-goals.
 - [Dashboard README](../dashboard/README.md) — UI behavior and contribution
   contract.
+- [Runvara frontend redesign plan](FRONTEND_REDESIGN.zh-CN.md) — agreed
+  visual direction, branding scope, implementation phases, and acceptance
+  criteria. The [validation report](FRONTEND_REDESIGN_VALIDATION.zh-CN.md)
+  records the completed implementation, checks, screenshots, and reproduction steps.
+- [Professional workbench redesign plan](WORKBENCH_REDESIGN.zh-CN.md) — the
+  next layout and workflow redesign, with confirmed direction, prototype-first
+  delivery, per-route scope, and acceptance criteria; not yet implemented.
 - [ADRs](adr/README.md) — accepted architecture decisions.
 - [Releasing](RELEASING.md) and
   [maintainer policy](../.github/MAINTAINERS.md) — release and repository
@@ -78,3 +87,7 @@ deliberate deferrals. Deferred work must not be described as shipped.
    [Development](DEVELOPMENT.md) before merging.
 
 Last reviewed: 2026-08-09.
+
+- [工作台原型与 P0 基线](WORKBENCH_PROTOTYPE.zh-CN.md)：可点击预览、功能去向清单与本轮对照。
+
+- [工作台全页面改造验收记录](WORKBENCH_REDESIGN_VALIDATION.zh-CN.md)：获批原型后的实际页面结构、功能去向与回归结果。

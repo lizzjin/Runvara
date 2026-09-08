@@ -1,0 +1,538 @@
+{
+  "mockOnly": true,
+  "results": [
+    {
+      "file": "docs/assets/workbench-redesign/implementation/login-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:26:53.801Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/dashboard-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:26:55.522Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/logs-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:26:56.958Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/models-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:26:58.503Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/api-keys-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:26:59.931Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/users-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:01.358Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/quotas-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:02.808Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/operations-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:04.256Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/enterprise-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:05.676Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/governance-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:07.130Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/settings-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:08.591Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/guide-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:10.059Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/not-found-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:10.955Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/login-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:11.873Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/dashboard-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:13.406Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/logs-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:14.799Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/models-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:16.220Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/api-keys-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:17.619Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/users-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:19.027Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/quotas-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:20.431Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/operations-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:22.010Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/enterprise-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:23.448Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/governance-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:24.839Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/settings-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:26.223Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/guide-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:27.599Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/not-found-1024.png",
+      "width": 1024,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:28.489Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/login-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:29.398Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/dashboard-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:30.897Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/logs-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:32.312Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/models-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:33.697Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/api-keys-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:35.091Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/users-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:36.445Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/quotas-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:37.825Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/operations-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:39.188Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/enterprise-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:40.628Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/governance-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:41.983Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/settings-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:43.377Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/guide-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:44.825Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/not-found-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:45.707Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/mock-dashboard-390.png",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:47.150Z"
+    },
+    {
+      "file": "docs/assets/readme/workbench.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "current working tree",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:48.650Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/mock-logs-detail-1440.png",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:50.148Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/implementation/mock-logs-detail-390.png",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:51.640Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-api-keys-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:54.394Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-dashboard-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:55.845Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-enterprise-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:57.222Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-governance-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:27:58.625Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-guide-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:00.086Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-login-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:01.182Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-logs-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:02.891Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-models-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:04.391Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-not-found-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:05.318Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-operations-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:06.778Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-quotas-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:08.335Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-settings-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:09.805Z"
+    },
+    {
+      "file": "docs/assets/workbench-redesign/before-users-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "source": "b847b0b948968b6ddde95611809fc2e9a6099159",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:11.251Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-dashboard-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:17.070Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-models-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:18.572Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-logs-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:20.278Z"
+    },
+    {
+      "file": "docs/assets/runvara-redesign/before-login-light.png",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "source": "d8a791fb51d73de36d0a068fa7545e81036a9b3c",
+      "mock": true,
+      "recapturedAt": "2026-09-18T12:28:21.684Z"
+    }
+  ],
+  "errors": []
+}

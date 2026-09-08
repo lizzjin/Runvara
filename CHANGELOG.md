@@ -5,6 +5,17 @@ All notable Runvara changes are recorded here. The project follows
 
 ## [Unreleased]
 
+### Branding and deployment identifiers
+
+- Renamed the product to **Runvara AI Gateway**, including the CLI, Rust
+  packages, UI, documentation, deployment assets and observability identifiers.
+- Standardized technical names on `runvara`, `RUNVARA_`, and `VITE_RUNVARA_`.
+- This rename requires a fresh database and state directory. Initial migration
+  checksums, table names, HTTP headers, cookies and backup identity changed;
+  existing deployments and old backups are not compatible with this baseline.
+- The existing GitHub repository URL remains valid; new image names do not
+  imply that renamed release artifacts have already been published.
+
 ### Release preparation
 
 - Prepared `v0.1.0 Small-Team Beta` for a free, MIT-licensed, self-hosted
@@ -76,5 +87,5 @@ Back up PostgreSQL and run a restore drill before upgrading. Compose still uses
 the PostgreSQL 18 volume `runvara_runvara-postgres-18`; export any older
 volume before removing it.
 
-[Unreleased]: https://github.com/tiammomo/Runvara/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/tiammomo/Runvara/releases/tag/v0.1.0
+[Unreleased]: https://github.com/lizzjin/Runvara/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/lizzjin/Runvara/releases/tag/v0.1.0

@@ -31,7 +31,7 @@ export function Header() {
 
   return (
     <header className="workbench-header">
-      <Link to="/dashboard" className="workbench-brand"><span><BrandMark className="h-7 w-7" /></span><strong>Runvara</strong><small>Beta · 单实例</small></Link>
+      <Link to="/dashboard" className="workbench-brand"><span><BrandMark className="h-7 w-7" /></span><strong>Runvara<em className="workbench-brand-category">AI Gateway</em></strong><small>Beta · 单实例</small></Link>
       <Workspaces />
       <div className="workbench-session">
         {isMockMode && (

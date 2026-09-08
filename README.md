@@ -1,235 +1,182 @@
-# Runvara
+# Runvara AI Gateway
 
-[![CI](https://github.com/tiammomo/Runvara/actions/workflows/ci.yml/badge.svg)](https://github.com/tiammomo/Runvara/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/tiammomo/Runvara/actions/workflows/codeql.yml/badge.svg)](https://github.com/tiammomo/Runvara/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tiammomo/Runvara/badge)](https://scorecard.dev/viewer/?uri=github.com/tiammomo/Runvara)
+**One gateway for your team's local and cloud models.**
+
+Connect coding tools and applications to a stable API. Keep credentials, routing,
+access policies, and request evidence in a self-hosted workbench.
+
+[![CI](https://github.com/lizzjin/Runvara/actions/workflows/ci.yml/badge.svg)](https://github.com/lizzjin/Runvara/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**English** | [简体中文](README.zh-CN.md)
+**English** · [简体中文](README.zh-CN.md) · [Getting started](docs/GETTING_STARTED.md) · [Documentation](docs/README.md)
 
-Runvara v0.1.x is a free, MIT-licensed, self-hosted LLM gateway for 20–50
-person internal development teams that use local models and approved cloud
-Providers. It gives Claude Code, SDKs, and internal applications one governed
-endpoint for authentication, logical-model routing, quotas, usage, Provider
-health, and request evidence. The Small-Team Beta experience is Chinese-first;
-the API and maintained operator documentation remain available in English.
+Runvara is a Rust LLM gateway with a React operations console and a PostgreSQL
+ledger. It is built for internal development teams of roughly **20–50 people**
+that combine local inference with approved cloud Providers. The current release
+line is **v0.1.x / Small-Team Beta**, with a Chinese-first dashboard.
 
-![Runvara architecture overview](docs/assets/runvara-overview.svg)
+## A workbench for everyday model operations
 
-## What You Get
+![Runvara workbench: traffic, usage, and Provider health](docs/assets/readme/workbench.png)
 
-- `POST /v1/messages`, `POST /v1/chat/completions`, `GET /v1/models`, and
-  opt-in exact token counting.
-- Anthropic and OpenAI-compatible Provider adapters with bounded streaming and
-  Tool Use conversion.
-- Optional CPA Codex and Claude account channels that remain internal Providers
-  behind Runvara's policy, routing, and evidence boundary.
-- Deterministic routes plus opt-in explainable smart routing with shadow mode,
-  stable canaries, and durable decision evidence.
-- Scoped client API keys, users, teams, quotas, spend controls, Provider
-  credential pools, cooldown, and bounded fallback.
-- A React operations dashboard and a PostgreSQL request, usage, budget, and
-  audit ledger.
-- An off-by-default deterministic, read-only operations Agent with a durable
-  incident center, bounded offline spool, recovery evidence, and optional
-  local-first, operator-selected model diagnosis.
-- Docker Compose and systemd deployment paths, backup/restore tooling,
-  Prometheus metrics, and acceptance scripts.
+*Current dashboard with built-in demonstration data. The figures illustrate the
+interface; they are not production measurements or performance benchmarks.*
 
-Runvara currently supports one Linux x86_64 instance on a trusted host or
-small trusted network. It is not enterprise/HA software, a public multi-tenant
-service, model runtime, chat UI, payment processor, or Provider invoice. See
-[Compatibility](docs/COMPATIBILITY.md), [Production](docs/PRODUCTION.md), and
-[Roadmap](docs/ROADMAP.md) before making broader availability claims.
+The console follows the work an operator does, from spotting a failed request to
+finding its route and managing the credentials behind it.
 
-## Quick Start
+| Workspace | What you can do |
+| --- | --- |
+| **Run** | Review traffic and usage, inspect request details beside the request queue, investigate operational incidents, and follow ledger evidence. |
+| **Configure** | Manage models, Providers, and credential pools; inspect runtime settings. Runtime settings are currently read-only. |
+| **Access & governance** | Issue scoped API keys, manage users and teams, set quotas, and record policy changes and approvals. |
+| **Integration guide** | Find connection instructions and examples for client tools. |
 
-Requirements: Linux x86_64, Git, Docker, Docker Compose v2, and credentials for
-at least one Provider. Once `v0.1.0` appears on the GitHub Releases page, the
-supported user path below pulls its prebuilt images and does not compile Rust
-or the Dashboard. The maintained example uses DeepSeek's Anthropic-compatible
-endpoint.
+The workbench supports light, dark, and system themes. On narrow screens,
+request investigation moves from a side-by-side queue and detail view to a
+list-to-detail flow. Unsaved edits and one-time API-key handoff have explicit
+navigation protection.
+
+## What Runvara handles
+
+**A stable client entry point.** Claude Code, SDKs, and internal applications
+can use Anthropic Messages or the documented OpenAI-compatible Chat Completions
+contract. Provider adapters map supported text, streaming, and Tool Use semantics
+through a typed intermediate representation.
+
+**Routes you can explain.** Start with explicit Providers, model aliases, and
+prefix routes. Evaluate optional smart routing in shadow mode, then use bounded
+canaries before activation. Routing decisions are stored with the request;
+credential pools, cooldowns, and eligible fallback paths handle upstream failures.
+
+**Access and spending controls before egress.** Keep Provider secrets on the
+server and give clients scoped gateway keys. Apply model/Provider permissions,
+project egress policies, quotas, and budget reservations before an upstream call.
+Cloud access requires an explicit project policy and an eligible data classification.
+
+**Evidence after the request.** Inspect attempts, terminal outcomes, usage,
+routing decisions, and audit records in PostgreSQL. Usage retains its source:
+Provider-reported values and local estimates are distinguishable. These records
+support operations and cost estimates; they do not replace a Provider invoice.
+
+## How it fits together
+
+![Runvara architecture: clients, gateway, Providers, dashboard, PostgreSQL, and optional operations tools](docs/assets/runvara-overview.svg)
+
+The Rust gateway owns the request path and the `/admin/*` control plane. The React
+console uses that control plane; PostgreSQL is required for the running server's
+request, usage, budget, and audit ledger. Low-frequency authentication and control
+configuration can use JSON or PostgreSQL-backed documents.
+
+For each request, Runvara authenticates the client, parses the protocol,
+resolves the model, checks eligible routes and policy, and reserves configured
+usage/budget before sending an attempt. It maps the response back to the client's
+protocol and finalizes the request evidence. A stream that has already started
+cannot be replayed through another Provider.
+
+Local inference runtimes and approved cloud endpoints sit behind the same
+Provider boundary. An optional CPA deployment can supply Codex/Claude account
+channels as internal Providers. Prometheus/Grafana and the optional read-only
+operations agent extend observation; the agent is off by default and does not
+execute shell commands, SQL, or automatic configuration changes.
+
+Read the [architecture and request lifecycle](docs/ARCHITECTURE.md),
+[Provider contracts](docs/PROVIDERS.md), and [agent rollout guide](docs/OPS_AGENT.md)
+for the implementation boundaries.
+
+## Run your own instance
+
+This naming transition requires a **fresh database and state directory**. See
+[the transition notes](docs/RUNVARA_RENAME_PLAN.zh-CN.md) before reusing an existing installation.
+
+### 1. Configure a source checkout
+
+The current installation path builds from source. Prebuilt release instructions
+in the deployment guide apply only once the corresponding tag and images have
+been published. The supported deployment target is **Linux x86_64 with Docker
+Engine and Docker Compose v2**; Docker builds the Rust and dashboard artifacts.
 
 ```bash
-git clone --branch v0.1.0 --depth 1 https://github.com/tiammomo/Runvara.git
-cd Runvara
+git clone https://github.com/lizzjin/Runvara.git runvara
+cd runvara
 cp deploy/docker/runvara.env.example .env
 cp config.example.toml config.toml
 ```
 
-Edit `.env` and replace every required `replace-with-...` value. At minimum set
-unique router, administrator, PostgreSQL, and Provider credentials. Keep
-`RUNVARA_AUTH_TOKEN` and the client-side `ANTHROPIC_AUTH_TOKEN` equal for the
-first local test.
+Edit `.env` and `config.toml` before starting. Replace all required credential
+placeholders, including the gateway token, administrator password, PostgreSQL
+password, and the chosen Provider's secret. The default example uses DeepSeek;
+for local inference or a mixed topology, follow the
+[Provider configuration recipes](docs/CONFIGURATION.md#provider-topology-recipes).
+
+### 2. Build, start, and check
 
 ```bash
-export RUNVARA_COMPOSE_FILE="$PWD/deploy/release/compose.yml"
-scripts/doctor.sh --setup
-docker compose -f "$RUNVARA_COMPOSE_FILE" pull
-scripts/compose-up.sh
-docker compose -f "$RUNVARA_COMPOSE_FILE" ps
-scripts/smoke-test.sh
-```
-
-The release command is intentionally invalid before the `v0.1.0` tag and GHCR
-images exist; this repository edit cannot publish external artifacts. To test
-current `main` or contribute before that release, use the source-build path:
-
-```bash
-git clone https://github.com/tiammomo/Runvara.git
-cd Runvara
-cp deploy/docker/runvara.env.example .env
-cp config.example.toml config.toml
-# replace required placeholders
 export RUNVARA_COMPOSE_FILE="$PWD/docker-compose.yml"
 scripts/build-container.sh
 RUNVARA_LOCAL_BUILD=1 scripts/compose-up.sh
+scripts/smoke-test.sh
 ```
 
-Open `http://127.0.0.1:33002` and sign in with
-`RUNVARA_ADMIN_USERNAME`/`RUNVARA_ADMIN_PASSWORD`.
+The build script expects a clean Git checkout. For local evaluation of your own
+uncommitted changes, use `scripts/build-container.sh --allow-dirty`.
+The smoke check verifies the local service without calling an upstream model.
 
-For local Qwen, another Provider, production hardening, digest pinning, or
-troubleshooting, follow the tested [Getting Started guide](docs/GETTING_STARTED.md).
-The optional Agent has its own [safe rollout guide](docs/OPS_AGENT.md); it is
-free and open source with the rest of Runvara and starts in shadow mode.
-After the first Release exists, building images from source is a contributor
-workflow documented in [Development](docs/DEVELOPMENT.md), not a normal user
-installation step.
+| Entry point | Default address | Credentials |
+| --- | --- | --- |
+| Dashboard | `http://127.0.0.1:33002` | `RUNVARA_ADMIN_USERNAME` / `RUNVARA_ADMIN_PASSWORD` from `.env` |
+| Gateway | `http://127.0.0.1:38082` | A scoped client key; the configured shared token can be used for initial local testing. |
 
-## Send Your First Request
+### 3. Connect a client
 
-Cloud egress is fail-closed until the request's project has an explicit policy.
-In the Dashboard, open **Governance (治理与变更审批)**, choose
-`project_policy.upsert`, set the target to
-`org_local/prj_default/env_default`, and record this narrow example policy:
+Create a scoped key in **Access & governance → API keys** and configure your
+client with the matching endpoint:
 
-```json
-{
-  "organizationId": "org_local",
-  "projectId": "prj_default",
-  "environmentId": "env_default",
-  "maximumMode": "cloud_first",
-  "defaultClassification": "unknown",
-  "allowedProviders": ["deepseek"],
-  "allowedModels": ["deepseek-v4-flash"],
-  "allowedRegions": ["global"],
-  "allowedApiVersions": ["anthropic-v1"],
-  "cloudEnabled": true
-}
-```
+| Client contract | Base URL | Inference endpoint |
+| --- | --- | --- |
+| Anthropic Messages | `http://127.0.0.1:38082` | `POST /v1/messages` |
+| OpenAI-compatible Chat Completions | `http://127.0.0.1:38082/v1` | `POST /v1/chat/completions` |
 
-Give the change a concrete reason, submit it, then apply it. The default
-Small-Team mode lets the same administrator apply this recorded change with
-CSRF and audit protection. Enterprise mode or
-`RUNVARA_REQUIRE_DUAL_APPROVAL=1` requires a different administrator to
-approve it before apply. This boundary permits only the documented DeepSeek
-model/API path; requests without an explicit safe classification still remain
-local-only.
+`GET /v1/models` exposes the model catalog. Choose a configured model or logical
+alias in your client. Provider credentials remain on the gateway.
 
-```bash
-source .env
+For a cloud request, first apply the explicit project policy described in
+[Getting Started](docs/GETTING_STARTED.md). That guide includes the narrow
+DeepSeek policy, classification headers, and a complete first-request example.
+Unclassified requests remain local-only; a real upstream request can consume
+Provider quota.
 
-curl -fsS \
-  -H "x-api-key: $RUNVARA_AUTH_TOKEN" \
-  -H 'content-type: application/json' \
-  -H 'x-runvara-data-classification: public' \
-  -H 'x-runvara-hybrid-mode: cloud_first' \
-  http://127.0.0.1:38082/v1/messages \
-  -d '{
-    "model":"deepseek-v4-flash",
-    "max_tokens":96,
-    "messages":[{"role":"user","content":"Reply exactly: OK"}]
-  }'
-```
+For shared access, follow the [production guide](docs/PRODUCTION.md) to configure
+HTTPS, trusted proxies, secure cookies, and backups before opening the service to
+your team. The Compose defaults bind the published application ports to loopback.
 
-This call can consume Provider quota. `scripts/smoke-test.sh` is local-only;
-use `scripts/smoke-test.sh --upstream` when a paid synthetic call is intended.
+## Choose your next step
 
-Claude Code:
+| Your task | Read |
+| --- | --- |
+| Finish installation or troubleshoot startup | [Getting Started](docs/GETTING_STARTED.md) · [Configuration](docs/CONFIGURATION.md) |
+| Connect local inference or a new Provider | [Local inference stack](docs/LOCAL_INFERENCE_STACK.md) · [Providers](docs/PROVIDERS.md) · [Tool Use compatibility](docs/TOOL_USE_COMPATIBILITY.md) |
+| Integrate a client or evaluate routing | [API reference](docs/API.md) · [Smart routing](docs/SMART_ROUTING.md) |
+| Deploy, observe, and recover | [Deployment](docs/DEPLOYMENT.md) · [Operations](docs/OPERATIONS.md) · [Observability runbook](docs/OBSERVABILITY_RUNBOOK.md) · [Upgrade & rollback](docs/UPGRADING.md) |
+| Understand the design or contribute | [Architecture](docs/ARCHITECTURE.md) · [Development](docs/DEVELOPMENT.md) · [Roadmap](docs/ROADMAP.md) |
 
-```env
-ANTHROPIC_BASE_URL=http://127.0.0.1:38082
-ANTHROPIC_AUTH_TOKEN=<RUNVARA_AUTH_TOKEN>
-ANTHROPIC_MODEL=deepseek-v4-flash
-```
+The [documentation index](docs/README.md) and [role-based learning paths](docs/LEARNING_PATH.md)
+provide a fuller reading order.
 
-OpenAI-compatible SDK:
+## Project status and participation
 
-```env
-OPENAI_BASE_URL=http://127.0.0.1:38082/v1
-OPENAI_API_KEY=<RUNVARA_CLIENT_KEY>
-OPENAI_MODEL=deepseek-v4-flash
-```
+Small-Team Beta targets **one backend instance on a trusted host or small trusted
+network**, with PostgreSQL 18.4 and a current Chromium-family browser. Public
+multi-tenancy and high availability are outside the current support scope.
+The client contract covers documented Messages and Chat Completions features;
+Responses, image/audio APIs, and arbitrary Provider extensions are not included.
+See the [compatibility matrix](docs/COMPATIBILITY.md) for supported, evaluation,
+and experimental combinations.
 
-Use a dashboard-issued scoped client key for shared deployments. Provider keys
-stay in Runvara and must never be copied into client applications.
+Contributions are welcome through [issues](https://github.com/lizzjin/Runvara/issues)
+and pull requests. Start with the [development guide](docs/DEVELOPMENT.md) for
+Rust, Node, PostgreSQL, and the required `scripts/check-all.sh` checks. Report
+security vulnerabilities through [Security](SECURITY.md).
 
-## Documentation
-
-Choose the document for your task instead of reading the whole documentation
-set:
-
-- [Getting Started](docs/GETTING_STARTED.md) — install, first login, first
-  request, and common startup failures.
-- [Learning Path](docs/LEARNING_PATH.md) — role-based 30–60 minute operator,
-  client-integration, operations, and contributor tracks.
-- [Local inference joint quickstart](docs/LOCAL_INFERENCE_STACK.md) — a
-  Linux/WSL2 contract-first path for Runvara plus local-inference-stack.
-- [Configuration](docs/CONFIGURATION.md) — environment and TOML reference.
-- [API](docs/API.md) — client and control-plane contracts.
-- [Providers](docs/PROVIDERS.md) — hosted Providers, local runtimes, and
-  compatibility evidence.
-- [Smart Routing](docs/SMART_ROUTING.md) — scoring, shadow, canary, and
-  rollback.
-- [Deployment](docs/DEPLOYMENT.md) — Docker Compose, systemd, and production
-  topology.
-- [Operations](docs/OPERATIONS.md) — health, logs, metrics, backup, retention,
-  incidents, and upgrades.
-- [Compatibility](docs/COMPATIBILITY.md) — Tier 1 platform and explicit
-  experimental/unsupported boundaries.
-- [Observability runbook](docs/OBSERVABILITY_RUNBOOK.md) — official alerts,
-  Grafana dashboard, and incident actions.
-- [Upgrading and rollback](docs/UPGRADING.md) — safe-stop, backup, migration,
-  acceptance, and paired application/database rollback.
-- [Production](docs/PRODUCTION.md) — go-live and release acceptance.
-- [Development](docs/DEVELOPMENT.md) — contributor workflow and test matrix.
-- [Documentation index](docs/README.md) — role-based navigation.
-
-## Security And Support
-
-Keep backend and PostgreSQL ports private. Use same-origin HTTPS, exact trusted
-proxy CIDRs, secure cookies, CSRF protection, and dashboard-issued API keys for
-shared use. Never commit `.env`, Provider keys, backups, prompts, responses, or
-raw sensitive logs.
-
-Read [Security](SECURITY.md), [Privacy](PRIVACY.md), [Support](SUPPORT.md), and
-[Governance](GOVERNANCE.md). Runvara is free self-hosted software. The
-project provides no paid edition, hosted service, or community-support SLA.
-
-## Development
-
-The source-development path requires a reachable PostgreSQL instance; the
-development scripts do not start one. See [Development](docs/DEVELOPMENT.md)
-for a loopback-only disposable database command and the complete prerequisites.
-
-```bash
-cp .env.example .env
-cp config.example.toml config.toml
-# replace required placeholders
-scripts/start.sh
-
-cd dashboard
-npm ci
-npm run dev
-```
-
-Before submitting a change:
-
-```bash
-scripts/check-all.sh
-```
-
-## License
-
-[MIT](LICENSE)
+Runvara is free, self-hosted software under the [MIT license](LICENSE).
+[Privacy](PRIVACY.md) · [Support](SUPPORT.md) · [Governance](GOVERNANCE.md)

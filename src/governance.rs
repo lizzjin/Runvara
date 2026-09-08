@@ -612,10 +612,7 @@ impl LocalSchedulerConfig {
                 "RUNVARA_LOCAL_QUEUE_GLOBAL",
                 DEFAULT_LOCAL_QUEUE_GLOBAL,
             ),
-            global_batch_queue: env_usize(
-                "RUNVARA_BATCH_QUEUE_GLOBAL",
-                DEFAULT_BATCH_QUEUE_GLOBAL,
-            ),
+            global_batch_queue: env_usize("RUNVARA_BATCH_QUEUE_GLOBAL", DEFAULT_BATCH_QUEUE_GLOBAL),
             overflow_after: Duration::from_secs(env_u64(
                 "RUNVARA_LOCAL_OVERFLOW_AFTER_SECONDS",
                 DEFAULT_OVERFLOW_AFTER.as_secs(),

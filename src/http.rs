@@ -61,8 +61,7 @@ pub struct SseFrame {
 
 impl HttpTransport {
     pub fn new() -> Result<Self, AppError> {
-        let connect_timeout =
-            Duration::from_secs(env_u64("RUNVARA_HTTP_CONNECT_TIMEOUT_SECS", 10));
+        let connect_timeout = Duration::from_secs(env_u64("RUNVARA_HTTP_CONNECT_TIMEOUT_SECS", 10));
         let request_timeout =
             Duration::from_secs(env_u64("RUNVARA_HTTP_REQUEST_TIMEOUT_SECS", 600));
         let stream_idle_timeout =
@@ -1104,12 +1103,8 @@ mod tests {
             dns_name: "provider.invalid".to_owned(),
             addresses: vec![address],
         };
-        let client = build_client(
-            Duration::from_secs(1),
-            "runvara-pinning-test",
-            Some(&pin),
-        )
-        .unwrap();
+        let client =
+            build_client(Duration::from_secs(1), "runvara-pinning-test", Some(&pin)).unwrap();
 
         let response = client
             .get(format!("http://provider.invalid:{}/host", address.port()))
@@ -1360,12 +1355,7 @@ mod tests {
     async fn sse_stream_enforces_line_event_and_total_limits() {
         let line_url = spawn_sse_upstream("data: 12345\n\n").await;
         let line_transport = test_transport(Duration::from_secs(1), 8, 1024, 1024);
-        assert_sse_limit(
-            line_transport,
-            line_url,
-            "RUNVARA_HTTP_SSE_MAX_LINE_BYTES",
-        )
-        .await;
+        assert_sse_limit(line_transport, line_url, "RUNVARA_HTTP_SSE_MAX_LINE_BYTES").await;
 
         let event_url =
             spawn_sse_upstream(": note\nevent: delta\nid: 7\nretry: 5\ndata: one\ndata: two\n\n")

@@ -506,9 +506,7 @@ impl OidcConfig {
         }
 
         let issuer = issuer.ok_or_else(|| {
-            AppError::Config(
-                "RUNVARA_OIDC_ISSUER is required when OIDC is configured".to_owned(),
-            )
+            AppError::Config("RUNVARA_OIDC_ISSUER is required when OIDC is configured".to_owned())
         })?;
         let client_id = client_id.ok_or_else(|| {
             AppError::Config(
@@ -554,8 +552,7 @@ impl OidcConfig {
             ));
         }
 
-        let label =
-            env_optional("RUNVARA_OIDC_LABEL").unwrap_or_else(|| DEFAULT_LABEL.to_owned());
+        let label = env_optional("RUNVARA_OIDC_LABEL").unwrap_or_else(|| DEFAULT_LABEL.to_owned());
         if label.len() > 80 || label.chars().any(char::is_control) {
             return Err(AppError::Config(
                 "RUNVARA_OIDC_LABEL must be at most 80 characters".to_owned(),

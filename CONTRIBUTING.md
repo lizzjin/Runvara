@@ -26,8 +26,8 @@ scripts/doctor.sh --development
 not install Rust, Node.js, npm, Docker, or Playwright browsers.
 
 ```bash
-git clone git@github.com:tiammomo/Runvara.git
-cd Runvara
+git clone git@github.com:lizzjin/Runvara.git runvara
+cd runvara
 cp .env.example .env
 cp config.example.toml config.toml
 # replace required placeholders; never commit this file

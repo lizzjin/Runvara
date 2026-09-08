@@ -18,8 +18,8 @@ you do not need to install PostgreSQL on the host.
 ## 2. Create Local Configuration
 
 ```bash
-git clone --branch v0.1.0 --depth 1 https://github.com/tiammomo/Runvara.git
-cd Runvara
+git clone --branch v0.1.0 --depth 1 https://github.com/lizzjin/Runvara.git runvara
+cd runvara
 cp deploy/docker/runvara.env.example .env
 cp config.example.toml config.toml
 ```
@@ -80,8 +80,8 @@ actually exist. A repository change cannot publish them. Before the first
 Release, current-main testing is a contributor path:
 
 ```bash
-git clone https://github.com/tiammomo/Runvara.git
-cd Runvara
+git clone https://github.com/lizzjin/Runvara.git runvara
+cd runvara
 cp deploy/docker/runvara.env.example .env
 cp config.example.toml config.toml
 # replace required placeholders

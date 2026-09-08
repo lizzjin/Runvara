@@ -1,5 +1,11 @@
 # Upgrading And Rollback
 
+The initial **Runvara AI Gateway** naming transition is a fresh-deployment
+baseline, not an in-place upgrade. Use a new PostgreSQL database and state
+directory with the new environment variables. Do not apply rewritten initial
+migrations to an existing installation or bypass migration checksum checks.
+The procedure below applies to subsequent releases on this naming baseline.
+
 Runvara v0.1.x is a single-instance beta. It promises a predictable,
 evidence-preserving maintenance window, not zero-downtime or rolling upgrades.
 Application and database rollback are separate decisions and may need to be
@@ -23,14 +29,14 @@ GitHub Release. Verify the release before editing deployment state:
 ```bash
 sha256sum --check SHA256SUMS
 gh attestation verify runvara-v0.1.0-linux-amd64.tar.gz \
-  --repo tiammomo/Runvara
+  --repo lizzjin/Runvara
 gh attestation verify \
-  oci://ghcr.io/tiammomo/runvara@sha256:<backend-digest> \
-  --repo tiammomo/Runvara
+  oci://ghcr.io/lizzjin/runvara@sha256:<backend-digest> \
+  --repo lizzjin/Runvara
 cosign verify \
-  --certificate-identity-regexp='https://github.com/tiammomo/Runvara/.github/workflows/release.yml@refs/tags/v0[.]1[.]0' \
+  --certificate-identity-regexp='https://github.com/lizzjin/Runvara/.github/workflows/release.yml@refs/tags/v0[.]1[.]0' \
   --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
-  ghcr.io/tiammomo/runvara@sha256:<backend-digest>
+  ghcr.io/lizzjin/runvara@sha256:<backend-digest>
 ```
 
 Repeat the image verification for `runvara-dashboard` and, when enabled,
@@ -84,10 +90,10 @@ Set the target images to the exact release digests in the shell or the
 operator-owned deployment environment:
 
 ```bash
-export RUNVARA_IMAGE='ghcr.io/tiammomo/runvara@sha256:<backend-digest>'
-export RUNVARA_DASHBOARD_IMAGE='ghcr.io/tiammomo/runvara-dashboard@sha256:<dashboard-digest>'
+export RUNVARA_IMAGE='ghcr.io/lizzjin/runvara@sha256:<backend-digest>'
+export RUNVARA_DASHBOARD_IMAGE='ghcr.io/lizzjin/runvara-dashboard@sha256:<dashboard-digest>'
 # Required only when the optional Compose profile is enabled.
-export RUNVARA_OPS_AGENT_IMAGE='ghcr.io/tiammomo/runvara-ops-agent@sha256:<agent-digest>'
+export RUNVARA_OPS_AGENT_IMAGE='ghcr.io/lizzjin/runvara-ops-agent@sha256:<agent-digest>'
 export RUNVARA_PULL_POLICY=always
 ```
 

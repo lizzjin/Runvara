@@ -30,7 +30,7 @@ Runvara 不下载或运行模型，local-inference-stack 不签发客户端密�
 在 Linux/WSL2 Shell 中设置两个真实路径：
 
 ```bash
-export RUNVARA_PROJECT_DIR=/path/to/Runvara
+export RUNVARA_PROJECT_DIR=/path/to/runvara
 export LOCAL_INFERENCE_STACK_DIR=/path/to/local-inference-stack
 ```
 

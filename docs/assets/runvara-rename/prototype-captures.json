@@ -1,0 +1,26 @@
+{
+  "source": "55f507de324fd819488e3a0d856d02415baf2762",
+  "mockOnly": true,
+  "recapturedAt": "2026-09-18T12:30:00.665Z",
+  "files": [
+    "after-dashboard-1440.png",
+    "after-logs-1440.png",
+    "after-models-1440.png",
+    "after-models-edit-1440.png",
+    "after-dashboard-1024.png",
+    "after-logs-1024.png",
+    "after-models-1024.png",
+    "after-dashboard-390.png",
+    "after-dashboard-dark-390.png",
+    "after-logs-390.png",
+    "after-logs-dark-390.png",
+    "after-models-390.png",
+    "after-models-dark-390.png",
+    "after-models-edit-390.png",
+    "scene-denied-390.png",
+    "scene-empty-390.png",
+    "scene-failure-390.png",
+    "scene-normal-390.png",
+    "scene-stale-390.png"
+  ]
+}
